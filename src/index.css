@@ -1,0 +1,99 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import 'tailwindcss';
+
+@theme {
+  --color-altar: #0F0A27;
+  --color-sanctum: #1B1240;
+  --color-sanctum-light: #251958;
+  --color-gold: #E8B84B;
+  --color-gold-dim: #A07E2A;
+  --color-violet: #9B6EF3;
+  --color-violet-dim: #6B4AB3;
+  --color-rubrum: #E05252;
+  --color-viridis: #4ADE80;
+  --color-alba: #F0ECFF;
+  --color-alba-muted: #9D92C0;
+
+  --font-fraunces: 'Fraunces', serif;
+  --font-jakarta: 'Plus Jakarta Sans', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #0F0A27;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar {
+  width: 0;
+}
+
+@keyframes halo-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse-gold {
+  0%, 100% {
+    opacity: 0.18;
+  }
+  50% {
+    opacity: 0.28;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.animate-halo-in {
+  animation: halo-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.monstrance-pulse {
+  animation: pulse-gold 3s ease-in-out infinite;
+}
+
+.gold-shimmer {
+  background: linear-gradient(
+    90deg,
+    #E8B84B 0%,
+    #F5D87A 40%,
+    #E8B84B 60%,
+    #A07E2A 100%
+  );
+  background-size: 200% auto;
+  animation: shimmer 3s linear infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
