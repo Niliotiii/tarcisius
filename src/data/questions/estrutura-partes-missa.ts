@@ -575,5 +575,125 @@ export const estruturaPartesMissaQuestions: Question[] = [
       }
     ],
     "correctOptionId": "a"
-  }
+  },
+  {
+    id: 'epm-img-01',
+    prompt: 'Como se chama o local mostrado na imagem, de onde são proclamadas as leituras da Missa?',
+    image: { src: '/images/quiz/epm-img-01.jpg', alt: 'Ambão de madeira dentro de uma igreja' },
+    options: [
+      { id: 'a', label: 'Altar' },
+      { id: 'b', label: 'Ambão' },
+      { id: 'c', label: 'Credência' },
+      { id: 'd', label: 'Sacrário' },
+    ],
+    correctOptionId: 'b',
+  },
+  {
+    id: 'epm-img-02',
+    prompt: 'Identifique o elemento litúrgico central mostrado na imagem, onde se celebra o sacrifício eucarístico.',
+    image: { src: '/images/quiz/epm-img-02.jpg', alt: 'Altar-mor com ciborio em uma basílica' },
+    options: [
+      { id: 'a', label: 'Ambão' },
+      { id: 'b', label: 'Credência' },
+      { id: 'c', label: 'Altar' },
+      { id: 'd', label: 'Sacrário' },
+    ],
+    correctOptionId: 'c',
+  },
+  {
+    id: 'epm-img-03',
+    prompt: 'Qual gesto litúrgico está sendo realizado pela pessoa na imagem?',
+    image: { src: '/images/quiz/epm-img-03.jpg', alt: 'Fiel ajoelhando-se sobre um joelho durante a Missa' },
+    options: [
+      { id: 'a', label: 'Genuflexão' },
+      { id: 'b', label: 'Inclinação' },
+      { id: 'c', label: 'Prostração' },
+      { id: 'd', label: 'Beijo do altar' },
+    ],
+    correctOptionId: 'a',
+  },
+  {
+    id: 'epm-img-04',
+    prompt: 'Que momento da consagração está representado na imagem, em que o padre celebra voltado ao altar (ad orientem)?',
+    image: { src: '/images/quiz/epm-img-04.jpg', alt: 'Padre elevando o cálice durante a consagração' },
+    options: [
+      { id: 'a', label: 'Elevação do cálice' },
+      { id: 'b', label: 'Fração do pão' },
+      { id: 'c', label: 'Incensação das oferendas' },
+      { id: 'd', label: 'Lavabo' },
+    ],
+    correctOptionId: 'a',
+  },
+  {
+    id: 'epm-img-05',
+    prompt: 'O que está sendo feito na cena mostrada, em que a fumaça sobe do turíbulo junto ao altar?',
+    image: { src: '/images/quiz/epm-img-05.jpg', alt: 'Fumaça de incenso subindo de um turíbulo durante a Missa católica' },
+    options: [
+      { id: 'a', label: 'Aspersão com água benta' },
+      { id: 'b', label: 'Incensação do altar' },
+      { id: 'c', label: 'Bênção final' },
+      { id: 'd', label: 'Lavabo' },
+    ],
+    correctOptionId: 'b',
+  },
+  {
+    id: 'epm-img-06',
+    prompt: 'Qual parte da Missa está sendo mostrada na imagem, em que o ministro entrega a hóstia consagrada a um fiel?',
+    image: { src: '/images/quiz/epm-img-06.jpg', alt: 'Bispo distribuindo a Sagrada Comunhão a uma fiel ajoelhada' },
+    options: [
+      { id: 'a', label: 'Ofertório' },
+      { id: 'b', label: 'Rito de paz' },
+      { id: 'c', label: 'Distribuição da Comunhão' },
+      { id: 'd', label: 'Bênção final' },
+    ],
+    correctOptionId: 'c',
+  },
+  {
+    id: 'epm-img-07',
+    prompt: 'Como se chama a mesinha mostrada na imagem, usada para apoiar os objetos litúrgicos no presbitério?',
+    image: { src: '/images/quiz/epm-img-07.jpg', alt: 'Credência, uma pequena mesa de apoio em uma igreja' },
+    options: [
+      { id: 'a', label: 'Altar' },
+      { id: 'b', label: 'Ambão' },
+      { id: 'c', label: 'Credência' },
+      { id: 'd', label: 'Píxide' },
+    ],
+    correctOptionId: 'c',
+  },
+  {
+    id: 'epm-img-08',
+    prompt: 'Qual objeto litúrgico está sendo carregado em procissão na imagem?',
+    image: { src: '/images/quiz/epm-img-08.jpg', alt: 'Ministro carregando o Evangeliário em procissão litúrgica' },
+    options: [
+      { id: 'a', label: 'Missal Romano' },
+      { id: 'b', label: 'Evangeliário' },
+      { id: 'c', label: 'Cruz processional' },
+      { id: 'd', label: 'Turíbulo' },
+    ],
+    correctOptionId: 'b',
+  },
+  {
+    id: 'epm-img-09',
+    prompt: 'Como se chama o receptáculo mostrado na imagem, onde ficam guardadas as hóstias consagradas?',
+    image: { src: '/images/quiz/epm-img-09.jpg', alt: 'Altar com o sacrário (tabernáculo) ao fundo em uma catedral' },
+    options: [
+      { id: 'a', label: 'Credência' },
+      { id: 'b', label: 'Ambão' },
+      { id: 'c', label: 'Sacrário' },
+      { id: 'd', label: 'Píxide' },
+    ],
+    correctOptionId: 'c',
+  },
+  {
+    id: 'epm-img-10',
+    prompt: 'Qual objeto é carregado à frente da procissão de entrada, mostrado na imagem?',
+    image: { src: '/images/quiz/epm-img-10.jpg', alt: 'Cruz processional sendo carregada à frente da procissão de entrada em uma catedral' },
+    options: [
+      { id: 'a', label: 'Cruz processional' },
+      { id: 'b', label: 'Evangeliário' },
+      { id: 'c', label: 'Turíbulo' },
+      { id: 'd', label: 'Círio pascal' },
+    ],
+    correctOptionId: 'a',
+  },
 ]

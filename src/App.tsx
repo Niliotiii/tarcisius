@@ -711,11 +711,19 @@ function QuizScreen({
               fontWeight: 800, cursor: 'pointer', minHeight: '52px',
               boxShadow: `0 4px 16px ${accentColor}44`,
               transition: 'transform 0.15s ease',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
             }}
             onMouseEnter={e => ((e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)')}
             onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)')}
           >
-            {session.currentIndex < session.questions.length - 1 ? 'Próxima →' : 'Ver Resultado'}
+            {session.currentIndex < session.questions.length - 1 ? (
+              <>
+                Próxima
+                <svg width="14" height="12" viewBox="0 0 14 12" fill="none">
+                  <path d="M1 6h11.5M8 1l5 5-5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </>
+            ) : 'Ver Resultado'}
           </button>
         </div>
       )}

@@ -575,5 +575,125 @@ export const objetosLiturgicosQuestions: Question[] = [
       }
     ],
     "correctOptionId": "b"
-  }
+  },
+  {
+    id: 'ol-img-01',
+    prompt: 'Qual é o nome do objeto mostrado na imagem?',
+    image: { src: '/images/quiz/ol-img-01.jpg', alt: 'Cálice dourado cravejado de pedras preciosas, usado na consagração do vinho' },
+    options: [
+      { id: 'a', label: 'Píxide' },
+      { id: 'b', label: 'Cálice' },
+      { id: 'c', label: 'Âmbula' },
+      { id: 'd', label: 'Custódia' },
+    ],
+    correctOptionId: 'b',
+  },
+  {
+    id: 'ol-img-02',
+    prompt: 'Como se chama este objeto litúrgico usado para queimar incenso durante a celebração?',
+    image: { src: '/images/quiz/ol-img-02.jpg', alt: 'Turíbulo de metal suspenso por correntes, com fumaça de incenso saindo pela tampa aberta' },
+    options: [
+      { id: 'a', label: 'Turíbulo' },
+      { id: 'b', label: 'Naveta' },
+      { id: 'c', label: 'Galhetas' },
+      { id: 'd', label: 'Píxide' },
+    ],
+    correctOptionId: 'a',
+  },
+  {
+    id: 'ol-img-03',
+    prompt: 'Observe a imagem: qual é o nome deste vaso sagrado usado na adoração eucarística?',
+    image: { src: '/images/quiz/ol-img-03.jpg', alt: 'Ostensório de prata em forma de sol, com uma pequena cruz no topo, usado para expor o Santíssimo Sacramento' },
+    options: [
+      { id: 'a', label: 'Píxide' },
+      { id: 'b', label: 'Turíbulo' },
+      { id: 'c', label: 'Ostensório' },
+      { id: 'd', label: 'Cálice' },
+    ],
+    correctOptionId: 'c',
+  },
+  {
+    id: 'ol-img-04',
+    prompt: 'Qual é o nome deste pequeno recipiente usado para levar a comunhão aos enfermos?',
+    image: { src: '/images/quiz/ol-img-04.jpg', alt: 'Píxide de prata em formato redondo e abaulado, usada para levar a comunhão aos enfermos' },
+    options: [
+      { id: 'a', label: 'Cálice' },
+      { id: 'b', label: 'Píxide' },
+      { id: 'c', label: 'Turíbulo' },
+      { id: 'd', label: 'Ostensório' },
+    ],
+    correctOptionId: 'b',
+  },
+  {
+    id: 'ol-img-05',
+    prompt: 'Como se chama o par de vasilhas usadas para a água e o vinho na missa?',
+    image: { src: '/images/quiz/ol-img-05.jpg', alt: 'Par de galhetas de metal dourado com tampa, uma marcada para água e outra para vinho' },
+    options: [
+      { id: 'a', label: 'Naveta' },
+      { id: 'b', label: 'Cálice' },
+      { id: 'c', label: 'Galhetas' },
+      { id: 'd', label: 'Píxide' },
+    ],
+    correctOptionId: 'c',
+  },
+  {
+    id: 'ol-img-06',
+    prompt: 'Qual é o nome deste objeto usado para aspergir água benta sobre os fiéis?',
+    image: { src: '/images/quiz/ol-img-06.jpg', alt: 'Aspersório de metal prateado com cabo de madeira, usado para aspergir água benta' },
+    options: [
+      { id: 'a', label: 'Aspersório' },
+      { id: 'b', label: 'Turíbulo' },
+      { id: 'c', label: 'Naveta' },
+      { id: 'd', label: 'Píxide' },
+    ],
+    correctOptionId: 'a',
+  },
+  {
+    id: 'ol-img-07',
+    prompt: 'Qual é o nome deste livro usado pelo padre durante a celebração da missa?',
+    image: { src: '/images/quiz/ol-img-07.jpg', alt: 'Página aberta do Missal Romano, mostrando orações e rubricas litúrgicas em latim' },
+    options: [
+      { id: 'a', label: 'Lecionário' },
+      { id: 'b', label: 'Ritual' },
+      { id: 'c', label: 'Bíblia' },
+      { id: 'd', label: 'Missal Romano' },
+    ],
+    correctOptionId: 'd',
+  },
+  {
+    id: 'ol-img-08',
+    prompt: 'Como se chama o local onde é guardado o Santíssimo Sacramento?',
+    image: { src: '/images/quiz/ol-img-08.jpg', alt: 'Sacrário de madeira com porta dourada e flores ao redor, onde é guardado o Santíssimo Sacramento' },
+    options: [
+      { id: 'a', label: 'Ambão' },
+      { id: 'b', label: 'Sacrário' },
+      { id: 'c', label: 'Púlpito' },
+      { id: 'd', label: 'Ostensório' },
+    ],
+    correctOptionId: 'b',
+  },
+  {
+    id: 'ol-img-09',
+    prompt: 'Qual é o nome desta cruz utilizada em procissões litúrgicas?',
+    image: { src: '/images/quiz/ol-img-09.jpg', alt: 'Cruz processional dourada com medalhões dos evangelistas, montada sobre uma haste' },
+    options: [
+      { id: 'a', label: 'Círio Pascal' },
+      { id: 'b', label: 'Cruz peitoral' },
+      { id: 'c', label: 'Cruz processional' },
+      { id: 'd', label: 'Crucifixo de altar' },
+    ],
+    correctOptionId: 'c',
+  },
+  {
+    id: 'ol-img-10',
+    prompt: 'Como se chama esta vela grande, acesa solenemente durante a Vigília Pascal?',
+    image: { src: '/images/quiz/ol-img-10.jpg', alt: 'Círio pascal branco com cruz vermelha e os símbolos alfa e ômega, sobre castiçal dourado' },
+    options: [
+      { id: 'a', label: 'Círio Pascal' },
+      { id: 'b', label: 'Vela do Advento' },
+      { id: 'c', label: 'Círio batismal' },
+      { id: 'd', label: 'Tocha da procissão' },
+    ],
+    correctOptionId: 'a',
+  },
 ]

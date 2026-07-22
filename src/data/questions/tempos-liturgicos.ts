@@ -575,5 +575,125 @@ export const temposLiturgicosQuestions: Question[] = [
       }
     ],
     "correctOptionId": "b"
-  }
+  },
+  {
+    id: 'tl-img-01',
+    prompt: 'A imagem mostra uma casula usada em dois tempos litúrgicos específicos. Em quais tempos ela é utilizada?',
+    image: { src: '/images/quiz/tl-img-01.jpg', alt: 'Casula (paramento litúrgico) na cor roxa, exposta em um museu' },
+    options: [
+      { id: 'a', label: 'Advento e Quaresma' },
+      { id: 'b', label: 'Tempo Comum' },
+      { id: 'c', label: 'Páscoa' },
+      { id: 'd', label: 'Pentecostes' },
+    ],
+    correctOptionId: 'a',
+  },
+  {
+    id: 'tl-img-02',
+    prompt: 'O bispo da foto está paramentado com a cor usada em quais celebrações?',
+    image: { src: '/images/quiz/tl-img-02.jpg', alt: 'Bispo paramentado com casula branca, mitra e báculo para a celebração da missa' },
+    options: [
+      { id: 'a', label: 'Páscoa e Natal' },
+      { id: 'b', label: 'Quaresma' },
+      { id: 'c', label: 'Tempo Comum' },
+      { id: 'd', label: 'Advento' },
+    ],
+    correctOptionId: 'a',
+  },
+  {
+    id: 'tl-img-03',
+    prompt: 'Esta casula é usada em qual tempo litúrgico?',
+    image: { src: '/images/quiz/tl-img-03.jpg', alt: 'Casula (paramento litúrgico) na cor verde, exposta em um museu' },
+    options: [
+      { id: 'a', label: 'Tempo Comum' },
+      { id: 'b', label: 'Quaresma' },
+      { id: 'c', label: 'Advento' },
+      { id: 'd', label: 'Páscoa' },
+    ],
+    correctOptionId: 'a',
+  },
+  {
+    id: 'tl-img-04',
+    prompt: 'A cor desta casula é usada em qual celebração ou tipo de festa?',
+    image: { src: '/images/quiz/tl-img-04.jpg', alt: 'Casula (paramento litúrgico) na cor vermelha, exposta em um museu' },
+    options: [
+      { id: 'a', label: 'Pentecostes e festas de mártires' },
+      { id: 'b', label: 'Tempo Comum' },
+      { id: 'c', label: 'Advento' },
+      { id: 'd', label: 'Natal' },
+    ],
+    correctOptionId: 'a',
+  },
+  {
+    id: 'tl-img-05',
+    prompt: 'Como se chama o objeto mostrado na imagem, com quatro velas acesas progressivamente?',
+    image: { src: '/images/quiz/tl-img-05.jpg', alt: 'Coroa do Advento com quatro velas: três roxas e uma rosa' },
+    options: [
+      { id: 'a', label: 'Coroa do Advento' },
+      { id: 'b', label: 'Círio Pascal' },
+      { id: 'c', label: 'Presépio' },
+      { id: 'd', label: 'Via-sacra' },
+    ],
+    correctOptionId: 'a',
+  },
+  {
+    id: 'tl-img-06',
+    prompt: 'Que objeto litúrgico é este, aceso ao lado do altar?',
+    image: { src: '/images/quiz/tl-img-06.jpg', alt: 'Círio Pascal aceso ao lado do altar em uma catedral' },
+    options: [
+      { id: 'a', label: 'Círio Pascal' },
+      { id: 'b', label: 'Coroa do Advento' },
+      { id: 'c', label: 'Vela votiva' },
+      { id: 'd', label: 'Lamparina do Santíssimo' },
+    ],
+    correctOptionId: 'a',
+  },
+  {
+    id: 'tl-img-07',
+    prompt: 'Esta representação está associada a qual tempo litúrgico?',
+    image: { src: '/images/quiz/tl-img-07.jpg', alt: 'Presépio tradicional com as figuras do Menino Jesus, Maria, José e outros elementos do nascimento' },
+    options: [
+      { id: 'a', label: 'Presépio, símbolo do Natal' },
+      { id: 'b', label: 'Via-sacra, símbolo da Quaresma' },
+      { id: 'c', label: 'Coroa do Advento' },
+      { id: 'd', label: 'Círio Pascal' },
+    ],
+    correctOptionId: 'a',
+  },
+  {
+    id: 'tl-img-08',
+    prompt: 'A que celebração está ligado o elemento mostrado na imagem?',
+    image: { src: '/images/quiz/tl-img-08.jpg', alt: 'Cruz tecida com folhas de palma, distribuída no Domingo de Ramos' },
+    options: [
+      { id: 'a', label: 'Domingo de Ramos' },
+      { id: 'b', label: 'Quarta-feira de Cinzas' },
+      { id: 'c', label: 'Vigília Pascal' },
+      { id: 'd', label: 'Corpus Christi' },
+    ],
+    correctOptionId: 'a',
+  },
+  {
+    id: 'tl-img-09',
+    prompt: 'A imagem mostra um rito realizado em qual celebração?',
+    image: { src: '/images/quiz/tl-img-09.jpg', alt: 'Cruz de cinzas marcada na testa de uma pessoa' },
+    options: [
+      { id: 'a', label: 'Quarta-feira de Cinzas (imposição das cinzas)' },
+      { id: 'b', label: 'Domingo de Ramos' },
+      { id: 'c', label: 'Batismo' },
+      { id: 'd', label: 'Crisma' },
+    ],
+    correctOptionId: 'a',
+  },
+  {
+    id: 'tl-img-10',
+    prompt: 'O padre na imagem está paramentado com a cor rosa. Em quais ocasiões essa cor é usada?',
+    image: { src: '/images/quiz/tl-img-10.jpg', alt: 'Padre celebrando a missa paramentado com vestes na cor rosa' },
+    options: [
+      { id: 'a', label: '3º domingo do Advento (Gaudete) e 4º domingo da Quaresma (Laetare)' },
+      { id: 'b', label: 'Pentecostes' },
+      { id: 'c', label: 'Sexta-feira Santa' },
+      { id: 'd', label: 'Todos os domingos do Tempo Comum' },
+    ],
+    correctOptionId: 'a',
+  },
 ]

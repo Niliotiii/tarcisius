@@ -575,5 +575,125 @@ export const vestesLiturgicasInsigniasQuestions: Question[] = [
       }
     ],
     "correctOptionId": "a"
-  }
+  },
+  {
+    id: 'vli-img-01',
+    prompt: 'Qual é o nome desta veste litúrgica mostrada na imagem?',
+    image: { src: '/images/quiz/vli-img-01.jpg', alt: 'Alva branca de linho bordada, exposta sobre um manequim em um museu' },
+    options: [
+      { id: 'a', label: 'Sobrepeliz' },
+      { id: 'b', label: 'Alva' },
+      { id: 'c', label: 'Dalmática' },
+      { id: 'd', label: 'Casula' },
+    ],
+    correctOptionId: 'b',
+  },
+  {
+    id: 'vli-img-02',
+    prompt: 'Observe a faixa cruzada sobre o peito do diácono na foto. Como se chama essa peça?',
+    image: { src: '/images/quiz/vli-img-02.jpg', alt: 'Diácono vestindo alva, cíngulo e uma estola roxa cruzada sobre o peito' },
+    options: [
+      { id: 'a', label: 'Cíngulo' },
+      { id: 'b', label: 'Véu umeral' },
+      { id: 'c', label: 'Estola' },
+      { id: 'd', label: 'Dalmática' },
+    ],
+    correctOptionId: 'c',
+  },
+  {
+    id: 'vli-img-03',
+    prompt: 'As vestes penduradas nesta imagem, usadas pelo padre por cima da alva na missa, são chamadas de:',
+    image: { src: '/images/quiz/vli-img-03.jpg', alt: 'Casulas litúrgicas coloridas penduradas em um cabide, em exposição em um museu de arte sacra' },
+    options: [
+      { id: 'a', label: 'Dalmáticas' },
+      { id: 'b', label: 'Capas pluviais' },
+      { id: 'c', label: 'Alvas' },
+      { id: 'd', label: 'Casulas' },
+    ],
+    correctOptionId: 'd',
+  },
+  {
+    id: 'vli-img-04',
+    prompt: 'Como se chama a peça que este ministro usa amarrada na cintura, por cima da alva?',
+    image: { src: '/images/quiz/vli-img-04.jpg', alt: 'Ministro vestindo alva branca presa na cintura por um cíngulo em forma de faixa' },
+    options: [
+      { id: 'a', label: 'Estola' },
+      { id: 'b', label: 'Cíngulo' },
+      { id: 'c', label: 'Véu umeral' },
+      { id: 'd', label: 'Sobrepeliz' },
+    ],
+    correctOptionId: 'b',
+  },
+  {
+    id: 'vli-img-05',
+    prompt: 'Qual é o nome da veste dourada que este diácono usa sobre a alva?',
+    image: { src: '/images/quiz/vli-img-05.jpg', alt: 'Diácono vestindo uma dalmática dourada por cima da alva' },
+    options: [
+      { id: 'a', label: 'Casula' },
+      { id: 'b', label: 'Estola' },
+      { id: 'c', label: 'Sobrepeliz' },
+      { id: 'd', label: 'Dalmática' },
+    ],
+    correctOptionId: 'd',
+  },
+  {
+    id: 'vli-img-06',
+    prompt: 'Como se chama o "chapéu" pontudo que este bispo está usando na cabeça?',
+    image: { src: '/images/quiz/vli-img-06.jpg', alt: 'Bispo usando mitra branca e segurando um báculo pastoral dourado' },
+    options: [
+      { id: 'a', label: 'Solidéu' },
+      { id: 'b', label: 'Mitra' },
+      { id: 'c', label: 'Barrete' },
+      { id: 'd', label: 'Véu umeral' },
+    ],
+    correctOptionId: 'b',
+  },
+  {
+    id: 'vli-img-07',
+    prompt: 'Este bastão dourado, símbolo do governo pastoral do bispo, é conhecido como:',
+    image: { src: '/images/quiz/vli-img-07.jpg', alt: 'Réplica dourada e ornamentada de um báculo pastoral episcopal, em exposição' },
+    options: [
+      { id: 'a', label: 'Cruz processional' },
+      { id: 'b', label: 'Cíngulo' },
+      { id: 'c', label: 'Báculo' },
+      { id: 'd', label: 'Mitra' },
+    ],
+    correctOptionId: 'c',
+  },
+  {
+    id: 'vli-img-08',
+    prompt: 'Qual é o nome desta veste ampla, usada em procissões e bênçãos solenes, mostrada na imagem?',
+    image: { src: '/images/quiz/vli-img-08.jpg', alt: 'Capa pluvial bordada em fios de ouro e seda do século XIX, exposta em um museu' },
+    options: [
+      { id: 'a', label: 'Dalmática' },
+      { id: 'b', label: 'Capa de asperges (capa pluvial)' },
+      { id: 'c', label: 'Casula' },
+      { id: 'd', label: 'Sobrepeliz' },
+    ],
+    correctOptionId: 'b',
+  },
+  {
+    id: 'vli-img-09',
+    prompt: 'Como se chama o pano branco que cobre os ombros e as mãos deste ministro enquanto ele carrega o ostensório?',
+    image: { src: '/images/quiz/vli-img-09.jpg', alt: 'Ministro segurando um ostensório com as mãos cobertas por um véu umeral branco, durante uma procissão' },
+    options: [
+      { id: 'a', label: 'Véu umeral' },
+      { id: 'b', label: 'Estola' },
+      { id: 'c', label: 'Casula' },
+      { id: 'd', label: 'Cíngulo' },
+    ],
+    correctOptionId: 'a',
+  },
+  {
+    id: 'vli-img-10',
+    prompt: 'Os coroinhas desta foto vestem, por cima da batina preta, uma veste branca curta chamada:',
+    image: { src: '/images/quiz/vli-img-10.jpg', alt: 'Coroinhas vestindo sobrepeliz branca sobre a batina preta, ao lado do padre junto ao altar' },
+    options: [
+      { id: 'a', label: 'Alva' },
+      { id: 'b', label: 'Dalmática' },
+      { id: 'c', label: 'Sobrepeliz' },
+      { id: 'd', label: 'Casula' },
+    ],
+    correctOptionId: 'c',
+  },
 ]
