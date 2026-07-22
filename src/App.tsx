@@ -23,11 +23,11 @@ function accentColorFor(moduleId: string): string {
 // Tiles never recolor to signal right/wrong (that would collide with these
 // hues); correctness is shown via glow/check vs. dim/cross instead.
 const TILE_STYLES = [
-  { color: '#DE9A1F', mark: '✦' },
-  { color: '#7C3AED', mark: '●' },
-  { color: '#0891B2', mark: '▲' },
-  { color: '#EA580C', mark: '✝' },
-] as const
+  { color: '#DE9A1F', mark: 'star' },
+  { color: '#7C3AED', mark: 'dot' },
+  { color: '#0891B2', mark: 'triangle' },
+  { color: '#EA580C', mark: 'cross' },
+] as const satisfies readonly { color: string; mark: GlyphName }[]
 
 // ─── SVG Monstrance ───────────────────────────────────────────────────────────
 
@@ -65,6 +65,69 @@ function Monstrance({ size = 200, opacity = 0.9, color = '#E8B84B' }: { size?: n
   )
 }
 
+// ─── Glyph Icons ──────────────────────────────────────────────────────────────
+// Hand-drawn SVG marks instead of Unicode symbols (✦ ● ▲ ✝ 🔒 🔥 ✓ ✗) — those
+// render as system emoji on some browsers/OSes, giving inconsistent size,
+// color, and style across platforms. SVG paths render identically everywhere.
+
+type GlyphName = 'star' | 'dot' | 'triangle' | 'cross' | 'check' | 'x' | 'lock' | 'flame'
+
+function GlyphIcon({ name, size = 16 }: { name: GlyphName; size?: number }) {
+  const common = { width: size, height: size, viewBox: '0 0 24 24', fill: 'currentColor' } as const
+
+  switch (name) {
+    case 'star':
+      return (
+        <svg {...common}>
+          <path d="M12 2.5c.9 3.1 1.9 5.6 3.1 6.9 1.2 1.3 3.4 2.3 6.4 2.6-3 .3-5.2 1.3-6.4 2.6-1.2 1.3-2.2 3.8-3.1 6.9-.9-3.1-1.9-5.6-3.1-6.9-1.2-1.3-3.4-2.3-6.4-2.6 3-.3 5.2-1.3 6.4-2.6 1.2-1.3 2.2-3.8 3.1-6.9z" />
+        </svg>
+      )
+    case 'dot':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="7" />
+        </svg>
+      )
+    case 'triangle':
+      return (
+        <svg {...common}>
+          <path d="M12 3.5l8.5 16H3.5L12 3.5z" />
+        </svg>
+      )
+    case 'cross':
+      return (
+        <svg {...common}>
+          <path d="M10.2 2.5h3.6v7.7h7.7v3.6h-7.7v7.7h-3.6v-7.7H2.5v-3.6h7.7V2.5z" />
+        </svg>
+      )
+    case 'check':
+      return (
+        <svg {...common} fill="none">
+          <path d="M4.5 12.5l5 5L19.5 7.5" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      )
+    case 'x':
+      return (
+        <svg {...common} fill="none">
+          <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      )
+    case 'lock':
+      return (
+        <svg {...common} fill="none">
+          <rect x="5" y="10.5" width="14" height="10" rx="2.2" stroke="currentColor" strokeWidth="2" />
+          <path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+      )
+    case 'flame':
+      return (
+        <svg {...common}>
+          <path d="M12 2.3c.4 3 2 4.4 3.6 6 1.8 1.8 2.9 3.7 2.9 6.2 0 4.1-3 7.2-6.5 7.2s-6.5-3.1-6.5-7c0-2 .9-3.5 2-4.7.1 1.4.8 2.3 1.7 2.3.9 0 1.4-.8 1.2-1.9-.5-2.6.1-5.6 2.2-8.1 -.3 1.3 0 2.3.7 3-0.1-1 .1-1.9.7-3z" />
+        </svg>
+      )
+  }
+}
+
 // ─── Quiz Pips (progress-as-run-history) ───────────────────────────────────────
 
 function QuizPips({
@@ -90,9 +153,9 @@ function QuizPips({
           <span style={{
             width: '32px', height: '32px', borderRadius: '50%',
             background: 'rgba(36,26,69,0.06)', color: 'var(--color-alba-muted)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
-            ✕
+            <GlyphIcon name="x" size={13} />
           </span>
         </button>
       </div>
@@ -128,7 +191,7 @@ type TileState = 'idle' | 'correct' | 'wrong' | 'neutral'
 function AnswerTile({
   label, mark, color, state, disabled, onClick,
 }: {
-  label: string; mark: string; color: string; state: TileState; disabled: boolean; onClick: () => void
+  label: string; mark: GlyphName; color: string; state: TileState; disabled: boolean; onClick: () => void
 }) {
   const isDimmed = state === 'neutral'
   const isWrong = state === 'wrong'
@@ -158,9 +221,9 @@ function AnswerTile({
         width: '38px', height: '38px', borderRadius: '11px',
         background: isWrong ? 'rgba(36,26,69,0.06)' : 'rgba(255,255,255,0.24)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: '19px', flexShrink: 0,
+        flexShrink: 0,
       }}>
-        {mark}
+        <GlyphIcon name={mark} size={18} />
       </span>
       <span>{label}</span>
 
@@ -172,10 +235,9 @@ function AnswerTile({
             width: '26px', height: '26px', borderRadius: '50%', flexShrink: 0,
             background: isCorrect ? 'var(--color-viridis)' : 'var(--color-rubrum)',
             color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '14px', fontWeight: 900,
           }}
         >
-          {isCorrect ? '✓' : '✗'}
+          <GlyphIcon name={isCorrect ? 'check' : 'x'} size={13} />
         </span>
       )}
     </button>
@@ -317,10 +379,10 @@ function StartScreen({ onContinue, onAbout }: { onContinue: () => void; onAbout:
 // ─── Screen: About ────────────────────────────────────────────────────────────
 
 const HOW_IT_WORKS_STEPS = [
-  { mark: '✦', text: 'Cada sessão sorteia 10 perguntas do banco do módulo escolhido.' },
-  { mark: '●', text: 'Toque numa alternativa e veja na hora se acertou — sem espera.' },
-  { mark: '▲', text: 'Ao final você recebe uma pontuação e um título de acordo com seu desempenho.' },
-  { mark: '✝', text: 'Jogue de novo para pegar um conjunto novo de perguntas do mesmo módulo.' },
+  'Cada sessão sorteia 10 perguntas do banco do módulo escolhido.',
+  'Toque numa alternativa e veja na hora se acertou — sem espera.',
+  'Ao final você recebe uma pontuação e um título de acordo com seu desempenho.',
+  'Jogue de novo para pegar um conjunto novo de perguntas do mesmo módulo.',
 ]
 
 function AboutScreen({ onBack }: { onBack: () => void }) {
@@ -337,7 +399,7 @@ function AboutScreen({ onBack }: { onBack: () => void }) {
       />
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '16px', gap: '10px' }}>
-        {HOW_IT_WORKS_STEPS.map((step, i) => {
+        {HOW_IT_WORKS_STEPS.map((text, i) => {
           const tile = TILE_STYLES[i % TILE_STYLES.length]
           return (
             <div key={i} style={{
@@ -348,15 +410,15 @@ function AboutScreen({ onBack }: { onBack: () => void }) {
               <span style={{
                 width: '36px', height: '36px', borderRadius: '10px', flexShrink: 0,
                 background: tile.color, color: '#FFFFFF',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
-                {step.mark}
+                <GlyphIcon name={tile.mark} size={16} />
               </span>
               <p style={{
                 fontFamily: 'var(--font-jakarta)', fontSize: '13.5px', color: 'var(--color-alba)',
                 margin: 0, lineHeight: 1.5, fontWeight: 600,
               }}>
-                {step.text}
+                {text}
               </p>
             </div>
           )
@@ -423,7 +485,7 @@ function ModulesScreen({ onSelect, onBack }: { onSelect: (mod: Module) => void; 
   )
 }
 
-const MODULE_GLYPHS = ['✦', '●', '▲', '✝']
+const MODULE_GLYPHS: GlyphName[] = ['star', 'dot', 'triangle', 'cross']
 
 function ModuleCard({ mod, index, onSelect }: { mod: Module; index: number; onSelect: (mod: Module) => void }) {
   const [pressed, setPressed] = useState(false)
@@ -439,9 +501,9 @@ function ModuleCard({ mod, index, onSelect }: { mod: Module; index: number; onSe
       }}>
         <div style={{
           width: '38px', height: '38px', borderRadius: '11px', background: 'rgba(36,26,69,0.08)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-alba-muted)',
         }}>
-          🔒
+          <GlyphIcon name="lock" size={16} />
         </div>
         <div>
           <span style={{
@@ -488,9 +550,9 @@ function ModuleCard({ mod, index, onSelect }: { mod: Module; index: number; onSe
     >
       <div style={{
         width: '38px', height: '38px', borderRadius: '11px', background: 'rgba(255,255,255,0.24)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
-        {MODULE_GLYPHS[index % MODULE_GLYPHS.length]}
+        <GlyphIcon name={MODULE_GLYPHS[index % MODULE_GLYPHS.length]} size={17} />
       </div>
 
       <div>
@@ -592,7 +654,7 @@ function QuizScreen({
         </div>
 
         {/* Answers — 2x2 tile grid, the dominant surface on this screen */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', flex: 1, alignContent: 'center' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', flex: 1, alignContent: 'end' }}>
           {q.options.map((opt, i) => {
             const tile = TILE_STYLES[i % TILE_STYLES.length]
             return (
@@ -624,7 +686,10 @@ function QuizScreen({
           }}>
             <span>{isCorrect ? 'Correto!' : 'Ops!'}</span>
             {isCorrect && streak >= 2 && (
-              <span style={{ color: 'var(--color-gold)' }}>🔥 {streak}x</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '3px', color: 'var(--color-gold)' }}>
+                <GlyphIcon name="flame" size={13} />
+                {streak}x
+              </span>
             )}
             <span style={{ position: 'relative', color: 'var(--color-alba-muted)', fontWeight: 600 }}>
               Pontuação: <span style={{ color: accentColor, fontWeight: 800 }}>{score}</span>
