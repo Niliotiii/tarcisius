@@ -19,6 +19,16 @@ function accentColorFor(moduleId: string): string {
   return ACCENT_COLORS[moduleId] ?? DEFAULT_ACCENT
 }
 
+// Fixed color + mark per answer position — the "board game tile" language.
+// Tiles never recolor to signal right/wrong (that would collide with these
+// hues); correctness is shown via glow/check vs. dim/cross instead.
+const TILE_STYLES = [
+  { color: '#DE9A1F', mark: '✦' },
+  { color: '#7C3AED', mark: '●' },
+  { color: '#0891B2', mark: '▲' },
+  { color: '#EA580C', mark: '✝' },
+] as const
+
 // ─── SVG Monstrance ───────────────────────────────────────────────────────────
 
 function Monstrance({ size = 200, opacity = 0.9, color = '#E8B84B' }: { size?: number; opacity?: number; color?: string }) {
@@ -55,75 +65,119 @@ function Monstrance({ size = 200, opacity = 0.9, color = '#E8B84B' }: { size?: n
   )
 }
 
-// ─── Progress Bar ─────────────────────────────────────────────────────────────
+// ─── Quiz Pips (progress-as-run-history) ───────────────────────────────────────
 
-function ProgressBar({ current, total, accentColor }: { current: number; total: number; accentColor: string }) {
-  const pct = (current / total) * 100
+function QuizPips({
+  total, currentIndex, results, accentColor, onExit,
+}: {
+  total: number; currentIndex: number; results: (boolean | null)[]; accentColor: string; onExit: () => void
+}) {
   return (
     <div style={{ width: '100%', padding: '16px 16px 8px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-        <span style={{ fontFamily: 'var(--font-jakarta)', fontSize: '12px', color: 'var(--color-alba-muted)', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-          Pergunta
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+        <span style={{ fontFamily: 'var(--font-jakarta)', fontSize: '11px', color: 'var(--color-alba-muted)', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+          Pergunta {currentIndex + 1} de {total}
         </span>
-        <span style={{ fontFamily: 'var(--font-fraunces)', fontSize: '14px', color: accentColor, fontWeight: 700 }}>
-          {current} <span style={{ color: 'var(--color-alba-muted)', fontWeight: 400 }}>/ {total}</span>
-        </span>
+        <button
+          onClick={onExit}
+          aria-label="Sair do quiz"
+          style={{
+            minWidth: '48px', minHeight: '48px', border: 'none', background: 'none',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', flexShrink: 0, margin: '-8px -8px -8px 0',
+          }}
+        >
+          <span style={{
+            width: '32px', height: '32px', borderRadius: '50%',
+            background: 'rgba(36,26,69,0.06)', color: 'var(--color-alba-muted)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px',
+          }}>
+            ✕
+          </span>
+        </button>
       </div>
-      <div style={{ height: '4px', background: 'var(--color-sanctum-light)', borderRadius: '99px', overflow: 'hidden' }}>
-        <div style={{
-          height: '100%',
-          width: `${pct}%`,
-          background: accentColor,
-          borderRadius: '99px',
-          transition: 'width 0.4s cubic-bezier(0.22, 1, 0.36, 1)',
-          boxShadow: `0 0 8px ${accentColor}88`,
-        }} />
+      <div style={{ display: 'flex', gap: '5px' }}>
+        {Array.from({ length: total }, (_, i) => {
+          const result = results[i]
+          const isCurrent = i === currentIndex
+          let bg = 'var(--color-sanctum-light)'
+          if (result === true) bg = 'var(--color-viridis)'
+          else if (result === false) bg = 'var(--color-rubrum)'
+          else if (isCurrent) bg = accentColor
+          return (
+            <div
+              key={i}
+              className={result !== null ? 'animate-pip-pop' : undefined}
+              style={{
+                flex: 1, height: '7px', borderRadius: '99px', background: bg,
+                boxShadow: isCurrent ? `0 0 8px ${accentColor}AA` : 'none',
+                transition: 'background 0.25s ease',
+              }}
+            />
+          )
+        })}
       </div>
     </div>
   )
 }
 
-// ─── Answer Button ────────────────────────────────────────────────────────────
+// ─── Answer Tile ────────────────────────────────────────────────────────────
 
-type AnswerState = 'idle' | 'correct' | 'wrong' | 'neutral'
+type TileState = 'idle' | 'correct' | 'wrong' | 'neutral'
 
-function AnswerButton({
-  label, optionLetter, state, disabled, onClick,
+function AnswerTile({
+  label, mark, color, state, disabled, onClick,
 }: {
-  label: string; optionLetter: string; state: AnswerState; disabled: boolean; onClick: () => void
+  label: string; mark: string; color: string; state: TileState; disabled: boolean; onClick: () => void
 }) {
-  const cfg = {
-    idle: { bg: 'var(--color-sanctum-light)', border: 'transparent', text: 'var(--color-alba)', letterBg: 'rgba(155,110,243,0.18)', letterColor: 'var(--color-violet)', opacity: 1 },
-    correct: { bg: 'rgba(74,222,128,0.15)', border: 'var(--color-viridis)', text: 'var(--color-viridis)', letterBg: 'transparent', letterColor: 'var(--color-viridis)', opacity: 1 },
-    wrong: { bg: 'rgba(224,82,82,0.15)', border: 'var(--color-rubrum)', text: 'var(--color-rubrum)', letterBg: 'transparent', letterColor: 'var(--color-rubrum)', opacity: 1 },
-    neutral: { bg: 'var(--color-sanctum)', border: 'transparent', text: 'var(--color-alba-muted)', letterBg: 'transparent', letterColor: 'var(--color-alba-muted)', opacity: 0.45 },
-  }[state]
-
-  const icon = state === 'correct' ? '✓' : state === 'wrong' ? '✗' : null
+  const isDimmed = state === 'neutral'
+  const isWrong = state === 'wrong'
+  const isCorrect = state === 'correct'
 
   return (
     <button
       onClick={onClick}
       disabled={disabled}
+      className={isCorrect ? 'animate-tile-pop-correct' : isWrong ? 'animate-tile-shake-wrong' : undefined}
       style={{
-        width: '100%', display: 'flex', alignItems: 'center', gap: '12px',
-        padding: '13px 16px', borderRadius: '14px', border: `1.5px solid ${cfg.border}`,
-        background: cfg.bg, color: cfg.text, opacity: cfg.opacity,
+        width: '100%', height: '100%', display: 'flex', flexDirection: 'column',
+        alignItems: 'flex-start', justifyContent: 'space-between', gap: '10px',
+        padding: '14px', borderRadius: '20px', border: 'none',
+        background: isWrong ? 'linear-gradient(160deg, #E4D9BE, #D8CBA8)' : `linear-gradient(160deg, ${color}, ${color}D9)`,
+        color: isWrong ? 'var(--color-alba-muted)' : '#FFFFFF',
+        opacity: isDimmed ? 0.4 : 1,
         cursor: disabled ? 'default' : 'pointer',
-        transition: 'all 0.2s ease', textAlign: 'left',
-        minHeight: '52px', fontFamily: 'var(--font-jakarta)',
-        fontSize: '15px', fontWeight: 600, lineHeight: 1.35,
+        transition: 'opacity 0.25s ease, filter 0.25s ease',
+        textAlign: 'left', minHeight: '128px',
+        fontFamily: 'var(--font-jakarta)', fontSize: '15px', fontWeight: 800, lineHeight: 1.3,
+        boxShadow: isCorrect ? '0 0 0 3px rgba(36,26,69,0.45), 0 8px 22px rgba(36,26,69,0.24)' : '0 3px 10px rgba(36,26,69,0.14)',
+        position: 'relative',
       }}
     >
       <span style={{
-        minWidth: '28px', height: '28px', borderRadius: '8px', background: cfg.letterBg,
+        width: '38px', height: '38px', borderRadius: '11px',
+        background: isWrong ? 'rgba(36,26,69,0.06)' : 'rgba(255,255,255,0.24)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontFamily: 'var(--font-fraunces)', fontSize: '14px', fontWeight: 700, fontStyle: 'italic',
-        color: cfg.letterColor, flexShrink: 0,
+        fontSize: '19px', flexShrink: 0,
       }}>
-        {icon ?? optionLetter}
+        {mark}
       </span>
-      <span style={{ flex: 1 }}>{label}</span>
+      <span>{label}</span>
+
+      {(isCorrect || isWrong) && (
+        <span
+          className="animate-badge-pop-in"
+          style={{
+            position: 'absolute', top: '10px', right: '10px',
+            width: '26px', height: '26px', borderRadius: '50%', flexShrink: 0,
+            background: isCorrect ? 'var(--color-viridis)' : 'var(--color-rubrum)',
+            color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '14px', fontWeight: 900,
+          }}
+        >
+          {isCorrect ? '✓' : '✗'}
+        </span>
+      )}
     </button>
   )
 }
@@ -132,20 +186,57 @@ function AnswerButton({
 
 function StarIcon({ filled }: { filled: boolean }) {
   return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill={filled ? '#E8B84B' : 'none'} stroke={filled ? '#E8B84B' : '#3D2F7A'} strokeWidth="1.5">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill={filled ? '#E8B84B' : 'none'} stroke={filled ? '#E8B84B' : '#D8CBA8'} strokeWidth="1.5">
       <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
     </svg>
   )
 }
 
+// ─── Screen Header ────────────────────────────────────────────────────────────
+// A single vertical block — back-link, then title, then subtitle — instead of
+// an icon chip floating next to a text stack. Ties into the same wayfinding
+// language as the "Como funciona?" link on the start screen, rather than
+// borrowing a generic icon-button pattern.
+
+function ScreenHeader({
+  title, subtitle, backLabel, onBack,
+}: {
+  title: string; subtitle: string; backLabel: string; onBack: () => void
+}) {
+  return (
+    <div style={{ padding: '20px 20px 0' }}>
+      <button
+        onClick={onBack}
+        style={{
+          background: 'none', border: 'none', padding: '10px 0', margin: '-10px 0 6px -2px',
+          display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer', minHeight: '44px',
+          fontFamily: 'var(--font-jakarta)', fontSize: '12px', fontWeight: 700,
+          letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-gold-dim)',
+        }}
+      >
+        <svg width="9" height="14" viewBox="0 0 9 14" fill="none">
+          <path d="M7.5 1.5L2 7L7.5 12.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+        {backLabel}
+      </button>
+      <h2 style={{ fontFamily: 'var(--font-fraunces)', fontSize: '26px', fontWeight: 800, fontStyle: 'italic', color: 'var(--color-alba)', margin: 0, lineHeight: 1.1 }}>
+        {title}
+      </h2>
+      <p style={{ fontFamily: 'var(--font-jakarta)', fontSize: '12.5px', color: 'var(--color-alba-muted)', margin: '4px 0 0', fontWeight: 600 }}>
+        {subtitle}
+      </p>
+    </div>
+  )
+}
+
 // ─── Screen: Start ────────────────────────────────────────────────────────────
 
-function StartScreen({ onContinue }: { onContinue: () => void }) {
+function StartScreen({ onContinue, onAbout }: { onContinue: () => void; onAbout: () => void }) {
   return (
     <div style={{
       minHeight: '100dvh', background: 'var(--color-altar)',
       display: 'flex', flexDirection: 'column', alignItems: 'center',
-      justifyContent: 'center', padding: '32px 24px', position: 'relative', overflow: 'hidden',
+      padding: '32px 24px calc(24px + env(safe-area-inset-bottom))', position: 'relative', overflow: 'hidden',
     }}>
       <div style={{
         position: 'absolute', top: '15%', left: '50%', transform: 'translateX(-50%)',
@@ -154,7 +245,11 @@ function StartScreen({ onContinue }: { onContinue: () => void }) {
         pointerEvents: 'none',
       }} />
 
-      <div className="animate-halo-in" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: '360px', width: '100%' }}>
+      {/* Identity block floats in the remaining space above the actions */}
+      <div className="animate-halo-in" style={{
+        flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
+        justifyContent: 'center', maxWidth: '360px', width: '100%',
+      }}>
         <div className="monstrance-pulse" style={{ marginBottom: '8px' }}>
           <Monstrance size={180} opacity={0.95} />
         </div>
@@ -179,11 +274,14 @@ function StartScreen({ onContinue }: { onContinue: () => void }) {
 
         <p style={{
           fontFamily: 'var(--font-jakarta)', fontSize: '14px', color: 'var(--color-alba-muted)',
-          margin: '0 0 32px', textAlign: 'center', lineHeight: 1.65, maxWidth: '270px',
+          margin: 0, textAlign: 'center', lineHeight: 1.65, maxWidth: '270px',
         }}>
           Treine seu conhecimento sobre a liturgia da Igreja Católica de forma divertida.
         </p>
+      </div>
 
+      {/* Actions pinned to the thumb zone at the bottom of the screen */}
+      <div style={{ maxWidth: '360px', width: '100%', flexShrink: 0 }}>
         <button
           onClick={onContinue}
           style={{
@@ -200,6 +298,99 @@ function StartScreen({ onContinue }: { onContinue: () => void }) {
           Escolher Módulo
         </button>
 
+        <button
+          onClick={onAbout}
+          style={{
+            width: '100%', padding: '13px', borderRadius: '16px', border: 'none',
+            background: 'transparent', color: 'var(--color-alba-muted)',
+            fontFamily: 'var(--font-jakarta)', fontSize: '13px', fontWeight: 700,
+            cursor: 'pointer', minHeight: '44px', marginTop: '6px',
+          }}
+        >
+          Como funciona?
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ─── Screen: About ────────────────────────────────────────────────────────────
+
+const HOW_IT_WORKS_STEPS = [
+  { mark: '✦', text: 'Cada sessão sorteia 10 perguntas do banco do módulo escolhido.' },
+  { mark: '●', text: 'Toque numa alternativa e veja na hora se acertou — sem espera.' },
+  { mark: '▲', text: 'Ao final você recebe uma pontuação e um título de acordo com seu desempenho.' },
+  { mark: '✝', text: 'Jogue de novo para pegar um conjunto novo de perguntas do mesmo módulo.' },
+]
+
+function AboutScreen({ onBack }: { onBack: () => void }) {
+  const availableModules = modules.filter(m => m.status === 'available')
+
+  return (
+    <div style={{
+      minHeight: '100dvh', background: 'var(--color-altar)',
+      display: 'flex', flexDirection: 'column', maxWidth: '480px', margin: '0 auto',
+    }}>
+      <ScreenHeader
+        title="Como funciona" subtitle="As regras do jogo, em poucas linhas"
+        backLabel="Início" onBack={onBack}
+      />
+
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '16px', gap: '10px' }}>
+        {HOW_IT_WORKS_STEPS.map((step, i) => {
+          const tile = TILE_STYLES[i % TILE_STYLES.length]
+          return (
+            <div key={i} style={{
+              background: 'var(--color-sanctum)', borderRadius: '16px', padding: '14px',
+              display: 'flex', alignItems: 'center', gap: '14px',
+              boxShadow: '0 2px 10px rgba(36,26,69,0.06)',
+            }}>
+              <span style={{
+                width: '36px', height: '36px', borderRadius: '10px', flexShrink: 0,
+                background: tile.color, color: '#FFFFFF',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px',
+              }}>
+                {step.mark}
+              </span>
+              <p style={{
+                fontFamily: 'var(--font-jakarta)', fontSize: '13.5px', color: 'var(--color-alba)',
+                margin: 0, lineHeight: 1.5, fontWeight: 600,
+              }}>
+                {step.text}
+              </p>
+            </div>
+          )
+        })}
+
+        <h3 style={{
+          fontFamily: 'var(--font-jakarta)', fontSize: '11px', fontWeight: 700,
+          letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-alba-muted)',
+          margin: '14px 0 2px',
+        }}>
+          Módulos ativos
+        </h3>
+
+        {availableModules.map(mod => {
+          const accentColor = accentColorFor(mod.id)
+          return (
+            <div key={mod.id} style={{
+              background: 'var(--color-sanctum)', borderRadius: '16px', padding: '14px 16px',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px',
+              boxShadow: '0 2px 10px rgba(36,26,69,0.06)',
+            }}>
+              <span style={{ fontFamily: 'var(--font-jakarta)', fontSize: '14px', fontWeight: 800, color: 'var(--color-alba)' }}>
+                {mod.title}
+              </span>
+              <span style={{
+                fontFamily: 'var(--font-jakarta)', fontSize: '11px', fontWeight: 700,
+                color: accentColor, background: `${accentColor}18`, padding: '4px 10px', borderRadius: '99px',
+                flexShrink: 0,
+              }}>
+                {mod.questions.length} perguntas no banco
+              </span>
+            </div>
+          )
+        })}
       </div>
     </div>
   )
@@ -213,261 +404,277 @@ function ModulesScreen({ onSelect, onBack }: { onSelect: (mod: Module) => void; 
       minHeight: '100dvh', background: 'var(--color-altar)',
       display: 'flex', flexDirection: 'column', maxWidth: '480px', margin: '0 auto',
     }}>
-      {/* Header */}
-      <div style={{ padding: '20px 20px 0', display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <button
-          onClick={onBack}
-          style={{
-            width: '48px', height: '48px', borderRadius: '10px', border: '1px solid rgba(155,110,243,0.2)',
-            background: 'var(--color-sanctum)', color: 'var(--color-alba-muted)',
-            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontFamily: 'var(--font-jakarta)', fontSize: '16px', flexShrink: 0,
-          }}
-        >
-          ←
-        </button>
-        <div>
-          <h2 style={{ fontFamily: 'var(--font-fraunces)', fontSize: '22px', fontWeight: 800, fontStyle: 'italic', color: 'var(--color-alba)', margin: 0, lineHeight: 1.1 }}>
-            Módulos
-          </h2>
-          <p style={{ fontFamily: 'var(--font-jakarta)', fontSize: '12px', color: 'var(--color-alba-muted)', margin: 0, fontWeight: 600 }}>
-            Escolha um tema para estudar
-          </p>
+      <ScreenHeader
+        title="Módulos" subtitle="Escolha um tema para estudar"
+        backLabel="Início" onBack={onBack}
+      />
+
+      {/* Module tiles — a level-select grid, not a settings list. Centered in
+          the remaining space so the tappable tiles fall in thumb reach
+          instead of sitting flush under the header with dead space below. */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '16px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          {modules.map((mod, idx) => (
+            <ModuleCard key={mod.id} mod={mod} index={idx} onSelect={onSelect} />
+          ))}
         </div>
-      </div>
-
-      {/* Monstrance watermark */}
-      <div style={{ display: 'flex', justifyContent: 'center', padding: '20px 0 12px', opacity: 0.07, pointerEvents: 'none' }}>
-        <Monstrance size={120} opacity={1} />
-      </div>
-
-      {/* Module cards */}
-      <div style={{ padding: '0 16px 32px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        {modules.map((mod, idx) => (
-          <ModuleCard key={mod.id} mod={mod} index={idx} onSelect={onSelect} />
-        ))}
       </div>
     </div>
   )
 }
+
+const MODULE_GLYPHS = ['✦', '●', '▲', '✝']
 
 function ModuleCard({ mod, index, onSelect }: { mod: Module; index: number; onSelect: (mod: Module) => void }) {
   const [pressed, setPressed] = useState(false)
   const locked = mod.status === 'locked'
   const accentColor = accentColorFor(mod.id)
 
-  return (
-    <button
-      onClick={() => !locked && onSelect(mod)}
-      disabled={locked}
-      onMouseDown={() => !locked && setPressed(true)}
-      onMouseUp={() => setPressed(false)}
-      onMouseLeave={() => setPressed(false)}
-      style={{
-        width: '100%', background: 'var(--color-sanctum)', borderRadius: '20px',
-        border: `1.5px solid ${locked ? 'rgba(255,255,255,0.04)' : `${accentColor}30`}`,
-        padding: '20px', textAlign: 'left', cursor: locked ? 'default' : 'pointer',
-        opacity: locked ? 0.55 : 1,
-        transform: pressed ? 'scale(0.985)' : 'scale(1)',
-        transition: 'transform 0.15s ease, border-color 0.2s ease',
-        display: 'block', minHeight: '48px',
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-            <span style={{
-              fontFamily: 'var(--font-jakarta)', fontSize: '10px', fontWeight: 700,
-              letterSpacing: '0.1em', textTransform: 'uppercase', color: accentColor,
-              background: `${accentColor}18`, padding: '3px 8px', borderRadius: '99px',
-            }}>
-              {mod.subtitle}
-            </span>
-            {locked && (
-              <span style={{
-                fontFamily: 'var(--font-jakarta)', fontSize: '10px', fontWeight: 700,
-                letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-alba-muted)',
-                background: 'rgba(255,255,255,0.06)', padding: '3px 8px', borderRadius: '99px',
-              }}>
-                {LOCKED_LABEL}
-              </span>
-            )}
-          </div>
-
+  if (locked) {
+    return (
+      <div style={{
+        background: 'var(--color-sanctum-light)', borderRadius: '20px',
+        padding: '16px', minHeight: '188px', display: 'flex', flexDirection: 'column',
+        justifyContent: 'space-between', opacity: 0.7,
+      }}>
+        <div style={{
+          width: '38px', height: '38px', borderRadius: '11px', background: 'rgba(36,26,69,0.08)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px',
+        }}>
+          🔒
+        </div>
+        <div>
+          <span style={{
+            fontFamily: 'var(--font-jakarta)', fontSize: '10px', fontWeight: 700,
+            letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-alba-muted)',
+            display: 'inline-block', marginBottom: '6px',
+          }}>
+            {LOCKED_LABEL}
+          </span>
           <h3 style={{
-            fontFamily: 'var(--font-fraunces)', fontSize: '20px', fontWeight: 800,
-            fontStyle: 'italic', color: 'var(--color-alba)', margin: '0 0 6px', lineHeight: 1.15,
+            fontFamily: 'var(--font-jakarta)', fontSize: '15px', fontWeight: 800,
+            color: 'var(--color-alba-muted)', margin: '0 0 4px', lineHeight: 1.2,
           }}>
             {mod.title}
           </h3>
-
           <p style={{
-            fontFamily: 'var(--font-jakarta)', fontSize: '13px', color: 'var(--color-alba-muted)',
-            margin: '0 0 14px', lineHeight: 1.55,
+            fontFamily: 'var(--font-jakarta)', fontSize: '11.5px', color: 'var(--color-alba-muted)',
+            margin: 0, lineHeight: 1.4, opacity: 0.8,
+            display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
           }}>
             {mod.description}
           </p>
-
-          {!locked && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: accentColor }} />
-                <span style={{ fontFamily: 'var(--font-jakarta)', fontSize: '12px', color: 'var(--color-alba-muted)', fontWeight: 600 }}>
-                  {mod.questions.length} perguntas
-                </span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'rgba(155,110,243,0.5)' }} />
-                <span style={{ fontFamily: 'var(--font-jakarta)', fontSize: '12px', color: 'var(--color-alba-muted)', fontWeight: 600 }}>
-                  10 por sessão
-                </span>
-              </div>
-            </div>
-          )}
         </div>
+      </div>
+    )
+  }
 
-        {/* Accent indicator */}
-        {!locked && (
-          <div style={{
-            width: '44px', height: '44px', borderRadius: '14px',
-            background: `${accentColor}15`,
-            border: `1.5px solid ${accentColor}30`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            flexShrink: 0, color: accentColor, fontSize: '20px',
-          }}>
-            {index === 0 ? '✦' : index === 1 ? '✤' : '◈'}
-          </div>
-        )}
+  return (
+    <button
+      onClick={() => onSelect(mod)}
+      onMouseDown={() => setPressed(true)}
+      onMouseUp={() => setPressed(false)}
+      onMouseLeave={() => setPressed(false)}
+      style={{
+        background: `linear-gradient(165deg, ${accentColor}, ${accentColor}D9)`,
+        borderRadius: '20px', border: 'none',
+        padding: '16px', textAlign: 'left', cursor: 'pointer',
+        minHeight: '188px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+        transform: pressed ? 'scale(0.97)' : 'scale(1)',
+        transition: 'transform 0.15s ease',
+        boxShadow: `0 6px 20px ${accentColor}44`,
+        color: '#FFFFFF',
+      }}
+    >
+      <div style={{
+        width: '38px', height: '38px', borderRadius: '11px', background: 'rgba(255,255,255,0.24)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px',
+      }}>
+        {MODULE_GLYPHS[index % MODULE_GLYPHS.length]}
       </div>
 
-      {!locked && (
-        <div style={{
-          marginTop: '16px', height: '3px', background: 'var(--color-sanctum-light)',
-          borderRadius: '99px', overflow: 'hidden',
+      <div>
+        <h3 style={{
+          fontFamily: 'var(--font-jakarta)', fontSize: '16px', fontWeight: 800,
+          margin: '0 0 4px', lineHeight: 1.2,
         }}>
-          <div style={{ height: '100%', width: '100%', background: `linear-gradient(90deg, ${accentColor}60, ${accentColor})`, borderRadius: '99px' }} />
-        </div>
-      )}
+          {mod.title}
+        </h3>
+        <p style={{
+          fontFamily: 'var(--font-jakarta)', fontSize: '11.5px', color: 'rgba(255,255,255,0.85)',
+          margin: 0, lineHeight: 1.4,
+          display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden',
+        }}>
+          {mod.description}
+        </p>
+      </div>
     </button>
   )
 }
 
 // ─── Screen: Quiz ─────────────────────────────────────────────────────────────
 
+function currentStreak(session: QuizSession): number {
+  let streak = 0
+  for (let i = session.answers.length - 1; i >= 0; i--) {
+    if (!session.answers[i].correct) break
+    streak++
+  }
+  return streak
+}
+
 function QuizScreen({
-  session, onAnswer, onNext, accentColor,
+  session, onAnswer, onNext, onExit, accentColor,
 }: {
-  session: QuizSession; onAnswer: (optionId: string) => void; onNext: () => void; accentColor: string;
+  session: QuizSession; onAnswer: (optionId: string) => void; onNext: () => void; onExit: () => void; accentColor: string;
 }) {
   const q: Question = session.questions[session.currentIndex]
   const currentAnswer = session.answers.find(a => a.questionId === q.id)
   const answered = currentAnswer !== undefined
   const score = getScore(session)
-  const letters = ['A', 'B', 'C', 'D', 'E', 'F']
+  const streak = currentStreak(session)
 
-  function getState(optionId: string): AnswerState {
+  const results: (boolean | null)[] = session.questions.map((question, i) => {
+    if (i > session.currentIndex) return null
+    if (i === session.currentIndex && !answered) return null
+    const a = session.answers.find(ans => ans.questionId === question.id)
+    return a ? a.correct : null
+  })
+
+  function getState(optionId: string): TileState {
     if (!answered) return 'idle'
     if (optionId === q.correctOptionId) return 'correct'
     if (optionId === currentAnswer!.selectedOptionId) return 'wrong'
     return 'neutral'
   }
 
+  const isCorrect = answered && currentAnswer!.correct
+
   return (
     <div style={{
       minHeight: '100dvh', background: 'var(--color-altar)',
       display: 'flex', flexDirection: 'column', maxWidth: '480px', margin: '0 auto',
     }}>
-      <ProgressBar current={session.currentIndex + 1} total={session.questions.length} accentColor={accentColor} />
+      <QuizPips total={session.questions.length} currentIndex={session.currentIndex} results={results} accentColor={accentColor} onExit={onExit} />
 
-      <div key={session.currentIndex} className="animate-slide-up" style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '4px 16px 24px', gap: '10px' }}>
-        {/* Question number */}
-        <span style={{
-          fontFamily: 'var(--font-fraunces)', fontSize: '13px', fontStyle: 'italic',
-          color: accentColor, fontWeight: 500, letterSpacing: '0.04em',
-        }}>
-          {String(session.currentIndex + 1).padStart(2, '0')} de {session.questions.length}
-        </span>
-
-        {/* Question card */}
-        <div style={{
-          background: 'var(--color-sanctum)', borderRadius: '20px',
-          border: '1px solid rgba(155,110,243,0.1)', overflow: 'hidden', position: 'relative',
-        }}>
-          {/* Watermark */}
+      <div key={session.currentIndex} className="animate-slide-up" style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '4px 16px 24px', gap: '16px' }}>
+        {/* Question — image gets a card if present; the prompt itself sits directly
+            on the page so it reads as the "stage", not another stacked card. */}
+        <div style={{ position: 'relative' }}>
           <div style={{
-            position: 'absolute', top: '-20px', right: '-20px', opacity: 0.05,
+            position: 'absolute', top: '-10px', right: '-10px', opacity: 0.06,
             pointerEvents: 'none', userSelect: 'none',
           }}>
-            <Monstrance size={140} opacity={1} color={accentColor} />
+            <Monstrance size={110} opacity={1} color={accentColor} />
           </div>
 
-          {/* Image (if any) */}
           {q.image && (
-            <div style={{ width: '100%', maxHeight: '35vh', background: '#0a0720', overflow: 'hidden', position: 'relative' }}>
+            <div style={{
+              width: '100%', maxHeight: '32vh', background: 'var(--color-sanctum)',
+              borderRadius: '18px', overflow: 'hidden', marginBottom: '14px',
+              boxShadow: '0 2px 14px rgba(36,26,69,0.08)',
+            }}>
               <img
                 src={q.image.src}
                 alt={q.image.alt}
-                style={{ width: '100%', maxHeight: '35vh', objectFit: 'contain', objectPosition: 'center', display: 'block', opacity: 0.92 }}
+                style={{ width: '100%', maxHeight: '32vh', objectFit: 'contain', objectPosition: 'center', display: 'block' }}
               />
-              {/* Gold overlay gradient at bottom */}
-              <div style={{
-                position: 'absolute', left: 0, right: 0, bottom: 0,
-                height: '60px',
-                background: 'linear-gradient(to bottom, transparent, var(--color-sanctum))',
-                pointerEvents: 'none',
-              }} />
             </div>
           )}
 
-          <div style={{ padding: '18px 20px 20px', position: 'relative', zIndex: 1 }}>
-            <p style={{
-              fontFamily: 'var(--font-jakarta)', fontSize: 'clamp(15px, 4vw, 18px)',
-              fontWeight: 700, color: 'var(--color-alba)', margin: 0, lineHeight: 1.45,
-            }}>
-              {q.prompt}
-            </p>
-          </div>
+          <p style={{
+            fontFamily: 'var(--font-jakarta)', fontSize: 'clamp(19px, 5.6vw, 24px)',
+            fontWeight: 800, color: 'var(--color-alba)', margin: 0, lineHeight: 1.32,
+            position: 'relative', zIndex: 1,
+          }}>
+            {q.prompt}
+          </p>
         </div>
 
-        {/* Answers */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '9px' }}>
-          {q.options.map((opt, i) => (
-            <AnswerButton
-              key={opt.id} label={opt.label} optionLetter={letters[i]}
-              state={getState(opt.id)} disabled={answered} onClick={() => onAnswer(opt.id)}
-            />
-          ))}
+        {/* Answers — 2x2 tile grid, the dominant surface on this screen */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', flex: 1, alignContent: 'center' }}>
+          {q.options.map((opt, i) => {
+            const tile = TILE_STYLES[i % TILE_STYLES.length]
+            return (
+              <AnswerTile
+                key={opt.id} label={opt.label} mark={tile.mark} color={tile.color}
+                state={getState(opt.id)} disabled={answered} onClick={() => onAnswer(opt.id)}
+              />
+            )
+          })}
         </div>
-
-        {/* Next button */}
-        {answered && (
-          <div className="animate-slide-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '4px' }}>
-            <div style={{ fontFamily: 'var(--font-jakarta)', fontSize: '13px', color: 'var(--color-alba-muted)' }}>
-              Pontuação: <span style={{ color: accentColor, fontWeight: 700 }}>{score}</span>
-            </div>
-            <button
-              onClick={onNext}
-              style={{
-                padding: '12px 24px', borderRadius: '12px', border: 'none',
-                background: `linear-gradient(135deg, ${accentColor}CC, ${accentColor})`,
-                color: '#0F0A27', fontFamily: 'var(--font-jakarta)', fontSize: '14px',
-                fontWeight: 800, cursor: 'pointer', minHeight: '48px',
-                boxShadow: `0 4px 16px ${accentColor}44`,
-                transition: 'transform 0.15s ease',
-              }}
-              onMouseEnter={e => ((e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)')}
-              onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)')}
-            >
-              {session.currentIndex < session.questions.length - 1 ? 'Próxima →' : 'Ver Resultado'}
-            </button>
-          </div>
-        )}
       </div>
+
+      {/* Feedback + next — pinned to the thumb zone, not inline in the flow */}
+      {answered && (
+        <div
+          className="animate-banner-drop-in"
+          style={{
+            position: 'sticky', bottom: 0, background: 'var(--color-altar)',
+            padding: '10px 16px calc(14px + env(safe-area-inset-bottom))',
+            boxShadow: '0 -6px 16px rgba(36,26,69,0.08)',
+            display: 'flex', flexDirection: 'column', gap: '10px',
+          }}
+        >
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 14px', borderRadius: '99px',
+            background: isCorrect ? 'rgba(34,184,122,0.14)' : 'rgba(224,72,63,0.14)',
+            color: isCorrect ? 'var(--color-viridis)' : 'var(--color-rubrum)',
+            fontFamily: 'var(--font-jakarta)', fontSize: '13px', fontWeight: 800, alignSelf: 'flex-start',
+          }}>
+            <span>{isCorrect ? 'Correto!' : 'Ops!'}</span>
+            {isCorrect && streak >= 2 && (
+              <span style={{ color: 'var(--color-gold)' }}>🔥 {streak}x</span>
+            )}
+            <span style={{ position: 'relative', color: 'var(--color-alba-muted)', fontWeight: 600 }}>
+              Pontuação: <span style={{ color: accentColor, fontWeight: 800 }}>{score}</span>
+              {isCorrect && (
+                <span key={session.currentIndex} className="animate-float-score" style={{
+                  position: 'absolute', right: 0, top: '-4px', color: 'var(--color-viridis)', fontWeight: 800, fontSize: '12px',
+                }}>
+                  +1
+                </span>
+              )}
+            </span>
+          </div>
+          <button
+            onClick={onNext}
+            style={{
+              width: '100%', padding: '15px', borderRadius: '14px', border: 'none',
+              background: `linear-gradient(135deg, ${accentColor}CC, ${accentColor})`,
+              color: '#0F0A27', fontFamily: 'var(--font-jakarta)', fontSize: '15px',
+              fontWeight: 800, cursor: 'pointer', minHeight: '52px',
+              boxShadow: `0 4px 16px ${accentColor}44`,
+              transition: 'transform 0.15s ease',
+            }}
+            onMouseEnter={e => ((e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)')}
+            onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)')}
+          >
+            {session.currentIndex < session.questions.length - 1 ? 'Próxima →' : 'Ver Resultado'}
+          </button>
+        </div>
+      )}
     </div>
   )
 }
 
 // ─── Screen: Result ───────────────────────────────────────────────────────────
+
+const CONFETTI_COLORS = ['#E8B84B', '#9B6EF3', '#5EC8E0', '#4ADE80', '#F2994A']
+
+function useConfettiPieces(count: number) {
+  return useMemo(
+    () => Array.from({ length: count }, (_, i) => ({
+      id: i,
+      left: Math.round((i / count) * 100 + (Math.random() * 8 - 4)),
+      color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+      delay: Math.random() * 0.3,
+      duration: 1.6 + Math.random() * 0.8,
+      size: 5 + Math.round(Math.random() * 4),
+    })),
+    [count],
+  )
+}
 
 function ResultScreen({ score, total, onRestart, onModules, accentColor }: {
   score: number; total: number; onRestart: () => void; onModules: () => void; accentColor: string;
@@ -477,15 +684,29 @@ function ResultScreen({ score, total, onRestart, onModules, accentColor }: {
   const ringR = 54
   const circ = 2 * Math.PI * ringR
   const offset = circ - (pct / 100) * circ
+  const celebrate = score / total >= 0.7
+  const confetti = useConfettiPieces(celebrate ? 18 : 0)
 
   return (
     <div style={{
       minHeight: '100dvh', background: 'var(--color-altar)',
       display: 'flex', flexDirection: 'column', alignItems: 'center',
-      justifyContent: 'center', padding: '32px 20px',
-      maxWidth: '480px', margin: '0 auto',
+      padding: '32px 20px calc(24px + env(safe-area-inset-bottom))',
+      maxWidth: '480px', margin: '0 auto', position: 'relative', overflow: 'hidden',
     }}>
-      <div className="animate-halo-in" style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      {confetti.map(p => (
+        <span
+          key={p.id}
+          className="confetti-piece"
+          style={{
+            left: `${p.left}%`, width: `${p.size}px`, height: `${p.size * 1.4}px`,
+            background: p.color, borderRadius: '2px',
+            animationDelay: `${p.delay}s`, animationDuration: `${p.duration}s`,
+          }}
+        />
+      ))}
+
+      <div className="animate-halo-in" style={{ flex: 1, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         {/* Score ring */}
         <div style={{ position: 'relative', marginBottom: '20px' }}>
           <svg width="130" height="130" viewBox="0 0 130 130">
@@ -545,38 +766,39 @@ function ResultScreen({ score, total, onRestart, onModules, accentColor }: {
           ))}
         </div>
 
-        {/* Actions */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%' }}>
-          <button
-            onClick={onRestart}
-            style={{
-              width: '100%', padding: '16px', borderRadius: '16px', border: 'none',
-              background: `linear-gradient(135deg, ${accentColor}AA, ${accentColor}, ${accentColor}DD)`,
-              color: '#0F0A27', fontFamily: 'var(--font-jakarta)', fontSize: '16px',
-              fontWeight: 800, cursor: 'pointer', minHeight: '52px',
-              boxShadow: `0 4px 24px ${accentColor}40`,
-              transition: 'transform 0.15s ease',
-            }}
-            onMouseEnter={e => ((e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-2px)')}
-            onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)')}
-          >
-            Jogar Novamente
-          </button>
-          <button
-            onClick={onModules}
-            style={{
-              width: '100%', padding: '14px', borderRadius: '16px',
-              border: '1.5px solid rgba(155,110,243,0.25)', background: 'var(--color-sanctum)',
-              color: 'var(--color-alba-muted)', fontFamily: 'var(--font-jakarta)',
-              fontSize: '14px', fontWeight: 700, cursor: 'pointer', minHeight: '48px',
-              transition: 'border-color 0.2s ease',
-            }}
-            onMouseEnter={e => ((e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(155,110,243,0.5)')}
-            onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(155,110,243,0.25)')}
-          >
-            Trocar de Módulo
-          </button>
-        </div>
+      </div>
+
+      {/* Actions pinned to the thumb zone */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%', flexShrink: 0 }}>
+        <button
+          onClick={onRestart}
+          style={{
+            width: '100%', padding: '16px', borderRadius: '16px', border: 'none',
+            background: `linear-gradient(135deg, ${accentColor}AA, ${accentColor}, ${accentColor}DD)`,
+            color: '#0F0A27', fontFamily: 'var(--font-jakarta)', fontSize: '16px',
+            fontWeight: 800, cursor: 'pointer', minHeight: '52px',
+            boxShadow: `0 4px 24px ${accentColor}40`,
+            transition: 'transform 0.15s ease',
+          }}
+          onMouseEnter={e => ((e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-2px)')}
+          onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)')}
+        >
+          Jogar Novamente
+        </button>
+        <button
+          onClick={onModules}
+          style={{
+            width: '100%', padding: '14px', borderRadius: '16px',
+            border: '1.5px solid rgba(155,110,243,0.25)', background: 'var(--color-sanctum)',
+            color: 'var(--color-alba-muted)', fontFamily: 'var(--font-jakarta)',
+            fontSize: '14px', fontWeight: 700, cursor: 'pointer', minHeight: '48px',
+            transition: 'border-color 0.2s ease',
+          }}
+          onMouseEnter={e => ((e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(155,110,243,0.5)')}
+          onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(155,110,243,0.25)')}
+        >
+          Trocar de Módulo
+        </button>
       </div>
     </div>
   )
@@ -584,7 +806,7 @@ function ResultScreen({ score, total, onRestart, onModules, accentColor }: {
 
 // ─── App ──────────────────────────────────────────────────────────────────────
 
-type Screen = 'start' | 'modules' | 'quiz' | 'result'
+type Screen = 'start' | 'about' | 'modules' | 'quiz' | 'result'
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('start')
@@ -612,10 +834,18 @@ export default function App() {
     })
   }, [])
 
+  const exitQuiz = useCallback(() => {
+    if (window.confirm('Sair agora? O progresso desta sessão será perdido.')) {
+      setSession(null)
+      setScreen('modules')
+    }
+  }, [])
+
   const accentColor = activeModule ? accentColorFor(activeModule.id) : DEFAULT_ACCENT
   const score = useMemo(() => (session ? getScore(session) : 0), [session])
 
-  if (screen === 'start') return <StartScreen onContinue={() => setScreen('modules')} />
+  if (screen === 'start') return <StartScreen onContinue={() => setScreen('modules')} onAbout={() => setScreen('about')} />
+  if (screen === 'about') return <AboutScreen onBack={() => setScreen('start')} />
   if (screen === 'modules') return <ModulesScreen onSelect={startQuiz} onBack={() => setScreen('start')} />
   if (screen === 'result' && session) return (
     <ResultScreen
@@ -627,8 +857,8 @@ export default function App() {
   )
   if (screen === 'quiz' && session) return (
     <QuizScreen
-      session={session} onAnswer={handleAnswer} onNext={handleNext} accentColor={accentColor}
+      session={session} onAnswer={handleAnswer} onNext={handleNext} onExit={exitQuiz} accentColor={accentColor}
     />
   )
-  return <StartScreen onContinue={() => setScreen('modules')} />
+  return <StartScreen onContinue={() => setScreen('modules')} onAbout={() => setScreen('about')} />
 }
