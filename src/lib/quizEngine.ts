@@ -10,7 +10,9 @@ function shuffle<T>(items: T[]): T[] {
 }
 
 export function startSession(module: Module, size = 10): QuizSession {
-  const questions: Question[] = shuffle(module.questions).slice(0, size)
+  const questions: Question[] = shuffle(module.questions)
+    .slice(0, size)
+    .map((question) => ({ ...question, options: shuffle(question.options) }))
   return {
     moduleId: module.id,
     questions,
