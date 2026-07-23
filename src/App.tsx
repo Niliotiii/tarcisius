@@ -1,8 +1,10 @@
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useEffect } from 'react'
 import type { Module, Question, QuizSession } from '@/types/quiz'
 import { modules } from '@/data/modules'
 import { startSession, submitAnswer, advance, getScore } from '@/lib/quizEngine'
 import { getRank } from '@/lib/ranking'
+import { saveSession, loadSession, clearSession, recordMiss, clearMiss, loadMissHistory } from '@/lib/storage'
+import { buildShareText, shareResult } from '@/lib/share'
 
 // ─── Presentation-only module theming (not part of the content data contract) ─
 
@@ -753,6 +755,17 @@ function ResultScreen({ score, total, onRestart, onModules, accentColor }: {
   score: number; total: number; onRestart: () => void; onModules: () => void; accentColor: string;
 }) {
   const rank = getRank(score)
+  const [shareState, setShareState] = useState<'idle' | 'shared' | 'copied'>('idle')
+
+  const handleShare = useCallback(async () => {
+    const text = buildShareText(score, total, rank.title)
+    const result = await shareResult(text)
+    if (result === 'shared' || result === 'copied') {
+      setShareState(result)
+      setTimeout(() => setShareState('idle'), 2500)
+    }
+  }, [score, total, rank.title])
+
   const pct = Math.round((score / total) * 100)
   const ringR = 54
   const circ = 2 * Math.PI * ringR
@@ -872,6 +885,19 @@ function ResultScreen({ score, total, onRestart, onModules, accentColor }: {
         >
           Trocar de Módulo
         </button>
+        <button
+          onClick={handleShare}
+          style={{
+            width: '100%', padding: '13px', borderRadius: '16px', border: 'none',
+            background: 'transparent', color: 'var(--color-alba-muted)',
+            fontFamily: 'var(--font-jakarta)', fontSize: '13px', fontWeight: 700,
+            cursor: 'pointer', minHeight: '48px',
+          }}
+        >
+          {shareState === 'idle' && 'Compartilhar resultado'}
+          {shareState === 'shared' && 'Compartilhado!'}
+          {shareState === 'copied' && 'Copiado para a área de transferência!'}
+        </button>
       </div>
     </div>
   )
@@ -886,22 +912,52 @@ export default function App() {
   const [activeModule, setActiveModule] = useState<Module | null>(null)
   const [session, setSession] = useState<QuizSession | null>(null)
 
+  // Resume an interrupted session once, on first mount.
+  useEffect(() => {
+    const stored = loadSession()
+    if (!stored) return
+    const mod = modules.find((m) => m.id === stored.moduleId && m.status === 'available')
+    if (!mod) {
+      clearSession()
+      return
+    }
+    setActiveModule(mod)
+    setSession(stored.session)
+    setScreen('quiz')
+  }, [])
+
+  // Persist the in-progress session on every change while on the quiz screen.
+  useEffect(() => {
+    if (screen === 'quiz' && session) {
+      saveSession(session.moduleId, session)
+    }
+  }, [screen, session])
+
   const startQuiz = useCallback((mod: Module) => {
     setActiveModule(mod)
-    setSession(startSession(mod))
+    setSession(startSession(mod, 10, loadMissHistory()))
     setScreen('quiz')
   }, [])
 
   const handleAnswer = useCallback((optionId: string) => {
-    setSession(s => (s ? submitAnswer(s, optionId) : s))
+    setSession((s) => {
+      if (!s) return s
+      const current = s.questions[s.currentIndex]
+      const next = submitAnswer(s, optionId)
+      const answer = next.answers.find((a) => a.questionId === current.id)
+      if (answer?.correct) clearMiss(current.id)
+      else if (answer) recordMiss(current.id)
+      return next
+    })
   }, [])
 
   const handleNext = useCallback(() => {
-    setSession(s => {
+    setSession((s) => {
       if (!s) return s
       if (s.currentIndex < s.questions.length - 1) {
         return advance(s)
       }
+      clearSession()
       setScreen('result')
       return s
     })
@@ -909,6 +965,7 @@ export default function App() {
 
   const exitQuiz = useCallback(() => {
     if (window.confirm('Sair agora? O progresso desta sessão será perdido.')) {
+      clearSession()
       setSession(null)
       setScreen('modules')
     }
