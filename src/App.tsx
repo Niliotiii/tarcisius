@@ -33,7 +33,7 @@ const TILE_STYLES = [
 
 // ─── SVG Monstrance ───────────────────────────────────────────────────────────
 
-function Monstrance({ size = 200, opacity = 0.9, color = '#E8B84B' }: { size?: number; opacity?: number; color?: string }) {
+function Monstrance({ size = 200, opacity = 0.9, color = '#E8B84B' }: Readonly<{ size?: number; opacity?: number; color?: string }>) {
   const cx = size / 2
   const cy = size / 2
   const r = size * 0.13
@@ -56,7 +56,7 @@ function Monstrance({ size = 200, opacity = 0.9, color = '#E8B84B' }: { size?: n
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} fill="none" style={{ opacity }}>
       {rayLines.map((l, i) => (
-        <line key={i} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} stroke={color} strokeWidth={i % 2 === 0 ? 1.5 : 0.8} strokeLinecap="round" />
+        <line key={`${l.x1}-${l.y1}`} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} stroke={color} strokeWidth={i % 2 === 0 ? 1.5 : 0.8} strokeLinecap="round" />
       ))}
       <circle cx={cx} cy={cy} r={r * 1.2} stroke={color} strokeWidth="1" />
       <circle cx={cx} cy={cy} r={r} stroke={color} strokeWidth="1.5" />
@@ -74,7 +74,7 @@ function Monstrance({ size = 200, opacity = 0.9, color = '#E8B84B' }: { size?: n
 
 type GlyphName = 'star' | 'dot' | 'triangle' | 'cross' | 'check' | 'x' | 'lock' | 'flame'
 
-function GlyphIcon({ name, size = 16 }: { name: GlyphName; size?: number }) {
+function GlyphIcon({ name, size = 16 }: Readonly<{ name: GlyphName; size?: number }>) {
   const common = { width: size, height: size, viewBox: '0 0 24 24', fill: 'currentColor' } as const
 
   switch (name) {
@@ -133,10 +133,10 @@ function GlyphIcon({ name, size = 16 }: { name: GlyphName; size?: number }) {
 // ─── Quiz Pips (progress-as-run-history) ───────────────────────────────────────
 
 function QuizPips({
-  total, currentIndex, results, accentColor, onExit,
-}: {
-  total: number; currentIndex: number; results: (boolean | null)[]; accentColor: string; onExit: () => void
-}) {
+  total, currentIndex, results, questionIds, accentColor, onExit,
+}: Readonly<{
+  total: number; currentIndex: number; results: (boolean | null)[]; questionIds: string[]; accentColor: string; onExit: () => void
+}>) {
   return (
     <div style={{ width: '100%', padding: '16px 16px 8px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
@@ -171,7 +171,7 @@ function QuizPips({
           else if (isCurrent) bg = accentColor
           return (
             <div
-              key={i}
+              key={questionIds[i]}
               className={result !== null ? 'animate-pip-pop' : undefined}
               style={{
                 flex: 1, height: '7px', borderRadius: '99px', background: bg,
@@ -192,12 +192,17 @@ type TileState = 'idle' | 'correct' | 'wrong' | 'neutral'
 
 function AnswerTile({
   label, mark, color, state, disabled, onClick,
-}: {
+}: Readonly<{
   label: string; mark: GlyphName; color: string; state: TileState; disabled: boolean; onClick: () => void
-}) {
+}>) {
   const isDimmed = state === 'neutral'
   const isWrong = state === 'wrong'
   const isCorrect = state === 'correct'
+  const tileAnimationClass = isCorrect
+    ? 'animate-tile-pop-correct'
+    : isWrong
+      ? 'animate-tile-shake-wrong'
+      : undefined
 
   return (
     <button
@@ -208,7 +213,7 @@ function AnswerTile({
           : isWrong ? `${label}, sua resposta, incorreta`
           : label
       }
-      className={isCorrect ? 'animate-tile-pop-correct' : isWrong ? 'animate-tile-shake-wrong' : undefined}
+      className={tileAnimationClass}
       style={{
         width: '100%', height: '100%', display: 'flex', flexDirection: 'column',
         alignItems: 'flex-start', justifyContent: 'space-between', gap: '10px',
@@ -253,7 +258,7 @@ function AnswerTile({
 
 // ─── Star Icon ────────────────────────────────────────────────────────────────
 
-function StarIcon({ filled }: { filled: boolean }) {
+function StarIcon({ filled }: Readonly<{ filled: boolean }>) {
   return (
     <svg width="28" height="28" viewBox="0 0 24 24" fill={filled ? '#E8B84B' : 'none'} stroke={filled ? '#E8B84B' : '#D8CBA8'} strokeWidth="1.5">
       <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
@@ -269,9 +274,9 @@ function StarIcon({ filled }: { filled: boolean }) {
 
 function ScreenHeader({
   title, subtitle, backLabel, onBack,
-}: {
+}: Readonly<{
   title: string; subtitle: string; backLabel: string; onBack: () => void
-}) {
+}>) {
   return (
     <div style={{ padding: '20px 20px 0' }}>
       <button
@@ -301,7 +306,7 @@ function ScreenHeader({
 
 // ─── Screen: Start ────────────────────────────────────────────────────────────
 
-function StartScreen({ onContinue, onAbout }: { onContinue: () => void; onAbout: () => void }) {
+function StartScreen({ onContinue, onAbout }: Readonly<{ onContinue: () => void; onAbout: () => void }>) {
   return (
     <div style={{
       minHeight: '100dvh', background: 'var(--color-altar)',
@@ -393,7 +398,7 @@ const HOW_IT_WORKS_STEPS = [
   'Jogue de novo para pegar um conjunto novo de perguntas do mesmo módulo.',
 ]
 
-function AboutScreen({ onBack }: { onBack: () => void }) {
+function AboutScreen({ onBack }: Readonly<{ onBack: () => void }>) {
   const availableModules = modules.filter(m => m.status === 'available')
 
   return (
@@ -410,7 +415,7 @@ function AboutScreen({ onBack }: { onBack: () => void }) {
         {HOW_IT_WORKS_STEPS.map((text, i) => {
           const tile = TILE_STYLES[i % TILE_STYLES.length]
           return (
-            <div key={i} style={{
+            <div key={text} style={{
               background: 'var(--color-sanctum)', borderRadius: '16px', padding: '14px',
               display: 'flex', alignItems: 'center', gap: '14px',
               boxShadow: '0 2px 10px rgba(36,26,69,0.06)',
@@ -468,7 +473,7 @@ function AboutScreen({ onBack }: { onBack: () => void }) {
 
 // ─── Screen: Modules ──────────────────────────────────────────────────────────
 
-function ModulesScreen({ onSelect, onBack }: { onSelect: (mod: Module) => void; onBack: () => void }) {
+function ModulesScreen({ onSelect, onBack }: Readonly<{ onSelect: (mod: Module) => void; onBack: () => void }>) {
   return (
     <div style={{
       minHeight: '100dvh', background: 'var(--color-altar)',
@@ -495,7 +500,7 @@ function ModulesScreen({ onSelect, onBack }: { onSelect: (mod: Module) => void; 
 
 const MODULE_GLYPHS: GlyphName[] = ['star', 'dot', 'triangle', 'cross']
 
-function ModuleCard({ mod, index, onSelect }: { mod: Module; index: number; onSelect: (mod: Module) => void }) {
+function ModuleCard({ mod, index, onSelect }: Readonly<{ mod: Module; index: number; onSelect: (mod: Module) => void }>) {
   const [pressed, setPressed] = useState(false)
   const locked = mod.status === 'locked'
   const accentColor = accentColorFor(mod.id)
@@ -595,9 +600,9 @@ function currentStreak(session: QuizSession): number {
 
 function QuizScreen({
   session, onAnswer, onNext, onExit, accentColor,
-}: {
+}: Readonly<{
   session: QuizSession; onAnswer: (optionId: string) => void; onNext: () => void; onExit: () => void; accentColor: string;
-}) {
+}>) {
   const q: Question = session.questions[session.currentIndex]
   const currentAnswer = session.answers.find(a => a.questionId === q.id)
   const answered = currentAnswer !== undefined
@@ -625,7 +630,10 @@ function QuizScreen({
       minHeight: '100dvh', background: 'var(--color-altar)',
       display: 'flex', flexDirection: 'column', maxWidth: '480px', margin: '0 auto',
     }}>
-      <QuizPips total={session.questions.length} currentIndex={session.currentIndex} results={results} accentColor={accentColor} onExit={onExit} />
+      <QuizPips
+        total={session.questions.length} currentIndex={session.currentIndex} results={results}
+        questionIds={session.questions.map((q) => q.id)} accentColor={accentColor} onExit={onExit}
+      />
 
       <div key={session.currentIndex} className="animate-slide-up" style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '4px 16px 24px', gap: '16px' }}>
         {/* Question — image gets a card if present; the prompt itself sits directly
@@ -761,9 +769,9 @@ function useConfettiPieces(count: number) {
   )
 }
 
-function ResultScreen({ score, total, onRestart, onModules, accentColor }: {
+function ResultScreen({ score, total, onRestart, onModules, accentColor }: Readonly<{
   score: number; total: number; onRestart: () => void; onModules: () => void; accentColor: string;
-}) {
+}>) {
   const rank = getRank(score)
   const [shareState, setShareState] = useState<'idle' | 'shared' | 'copied'>('idle')
 
