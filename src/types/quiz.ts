@@ -1,6 +1,7 @@
 export interface QuestionOption {
   id: string
   label: string
+  image?: QuestionImage
 }
 
 export interface QuestionImage {

@@ -696,4 +696,15 @@ export const objetosLiturgicosQuestions: Question[] = [
     ],
     correctOptionId: 'a',
   },
+  {
+    id: 'ol-inv-01',
+    prompt: 'Qual destas imagens mostra um cálice?',
+    options: [
+      { id: 'a', label: 'Turíbulo', image: { src: '/images/quiz/ol-img-02.jpg', alt: 'Turíbulo' } },
+      { id: 'b', label: 'Cálice', image: { src: '/images/quiz/ol-img-01.jpg', alt: 'Cálice' } },
+      { id: 'c', label: 'Ostensório', image: { src: '/images/quiz/ol-img-03.jpg', alt: 'Ostensório' } },
+      { id: 'd', label: 'Píxide', image: { src: '/images/quiz/ol-img-04.jpg', alt: 'Píxide' } },
+    ],
+    correctOptionId: 'b',
+  },
 ]

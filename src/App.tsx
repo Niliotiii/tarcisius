@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo, useEffect } from 'react'
-import type { Module, Question, QuizSession } from '@/types/quiz'
+import type { Module, Question, QuizSession, QuestionImage } from '@/types/quiz'
 import { modules } from '@/data/modules'
 import { startSession, submitAnswer, advance, getScore } from '@/lib/quizEngine'
 import { getRank } from '@/lib/ranking'
@@ -191,9 +191,10 @@ function QuizPips({
 type TileState = 'idle' | 'correct' | 'wrong' | 'neutral'
 
 function AnswerTile({
-  label, mark, color, state, disabled, onClick,
+  label, mark, color, state, disabled, onClick, image,
 }: Readonly<{
   label: string; mark: GlyphName; color: string; state: TileState; disabled: boolean; onClick: () => void
+  image?: QuestionImage
 }>) {
   const isDimmed = state === 'neutral'
   const isWrong = state === 'wrong'
@@ -237,7 +238,20 @@ function AnswerTile({
       }}>
         <GlyphIcon name={mark} size={18} />
       </span>
-      <span>{label}</span>
+      {image && (
+        <img
+          src={image.src}
+          alt=""
+          aria-hidden="true"
+          style={{
+            width: '100%', height: '64px', objectFit: 'cover', borderRadius: '10px',
+            marginTop: '-2px',
+          }}
+        />
+      )}
+      <span style={image ? { position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0,0,0,0)' } : undefined}>
+        {label}
+      </span>
 
       {(isCorrect || isWrong) && (
         <span
@@ -677,6 +691,7 @@ function QuizScreen({
               <AnswerTile
                 key={opt.id} label={opt.label} mark={tile.mark} color={tile.color}
                 state={getState(opt.id)} disabled={answered} onClick={() => onAnswer(opt.id)}
+                image={opt.image}
               />
             )
           })}
