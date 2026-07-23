@@ -1,10 +1,10 @@
-import { useState, useCallback, useMemo, useEffect } from 'react'
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 import type { Module, Question, QuizSession, QuestionImage } from '@/types/quiz'
 import { modules } from '@/data/modules'
 import { startSession, submitAnswer, advance, getScore } from '@/lib/quizEngine'
 import { getRank } from '@/lib/ranking'
 import { saveSession, loadSession, clearSession, recordMiss, clearMiss, loadMissHistory } from '@/lib/storage'
-import { buildShareText, shareResult } from '@/lib/share'
+import { buildShareText, shareResultImage } from '@/lib/share'
 
 // ─── Presentation-only module theming (not part of the content data contract) ─
 
@@ -788,13 +788,17 @@ function ResultScreen({ score, total, onRestart, onModules, accentColor }: Reado
   score: number; total: number; onRestart: () => void; onModules: () => void; accentColor: string;
 }>) {
   const rank = getRank(score)
-  const [shareState, setShareState] = useState<'idle' | 'shared' | 'copied'>('idle')
+  const cardRef = useRef<HTMLDivElement>(null)
+  const [shareState, setShareState] = useState<'idle' | 'capturing' | 'shared' | 'shared-image-saved' | 'downloaded' | 'copied'>('idle')
 
   const handleShare = useCallback(async () => {
+    if (!cardRef.current) return
+    setShareState('capturing')
     const text = buildShareText(score, total, rank.title)
-    const result = await shareResult(text)
-    if (result === 'shared' || result === 'copied') {
-      setShareState(result)
+    const result = await shareResultImage(cardRef.current, text)
+    const nextState = result === 'unavailable' ? 'idle' : result
+    setShareState(nextState)
+    if (nextState !== 'idle') {
       setTimeout(() => setShareState('idle'), 2500)
     }
   }, [score, total, rank.title])
@@ -825,7 +829,7 @@ function ResultScreen({ score, total, onRestart, onModules, accentColor }: Reado
         />
       ))}
 
-      <div className="animate-halo-in" style={{ flex: 1, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+      <div ref={cardRef} className="animate-halo-in" style={{ flex: 1, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'var(--color-altar)' }}>
         {/* Score ring */}
         <div style={{ position: 'relative', marginBottom: '20px' }}>
           <svg width="130" height="130" viewBox="0 0 130 130">
@@ -920,15 +924,20 @@ function ResultScreen({ score, total, onRestart, onModules, accentColor }: Reado
         </button>
         <button
           onClick={handleShare}
+          disabled={shareState === 'capturing'}
           style={{
             width: '100%', padding: '13px', borderRadius: '16px', border: 'none',
             background: 'transparent', color: 'var(--color-alba-muted)',
             fontFamily: 'var(--font-jakarta)', fontSize: '13px', fontWeight: 700,
-            cursor: 'pointer', minHeight: '48px',
+            cursor: shareState === 'capturing' ? 'default' : 'pointer', minHeight: '48px',
+            opacity: shareState === 'capturing' ? 0.6 : 1,
           }}
         >
           {shareState === 'idle' && 'Compartilhar resultado'}
+          {shareState === 'capturing' && 'Gerando imagem...'}
           {shareState === 'shared' && 'Compartilhado!'}
+          {shareState === 'shared-image-saved' && 'Compartilhado! Imagem também salva.'}
+          {shareState === 'downloaded' && 'Imagem salva!'}
           {shareState === 'copied' && 'Copiado para a área de transferência!'}
         </button>
       </div>
