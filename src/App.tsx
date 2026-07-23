@@ -203,6 +203,11 @@ function AnswerTile({
     <button
       onClick={onClick}
       disabled={disabled}
+      aria-label={
+        isCorrect ? `${label}, resposta correta`
+          : isWrong ? `${label}, sua resposta, incorreta`
+          : label
+      }
       className={isCorrect ? 'animate-tile-pop-correct' : isWrong ? 'animate-tile-shake-wrong' : undefined}
       style={{
         width: '100%', height: '100%', display: 'flex', flexDirection: 'column',
@@ -271,6 +276,7 @@ function ScreenHeader({
     <div style={{ padding: '20px 20px 0' }}>
       <button
         onClick={onBack}
+        aria-label={backLabel}
         style={{
           background: 'none', border: 'none', padding: '10px 0', margin: '-10px 0 6px -2px',
           display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer', minHeight: '44px',
@@ -680,12 +686,16 @@ function QuizScreen({
             display: 'flex', flexDirection: 'column', gap: '10px',
           }}
         >
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 14px', borderRadius: '99px',
-            background: isCorrect ? 'rgba(34,184,122,0.14)' : 'rgba(224,72,63,0.14)',
-            color: isCorrect ? 'var(--color-viridis)' : 'var(--color-rubrum)',
-            fontFamily: 'var(--font-jakarta)', fontSize: '13px', fontWeight: 800, alignSelf: 'flex-start',
-          }}>
+          <div
+            role="status"
+            aria-live="polite"
+            style={{
+              display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 14px', borderRadius: '99px',
+              background: isCorrect ? 'rgba(34,184,122,0.14)' : 'rgba(224,72,63,0.14)',
+              color: isCorrect ? 'var(--color-viridis)' : 'var(--color-rubrum)',
+              fontFamily: 'var(--font-jakarta)', fontSize: '13px', fontWeight: 800, alignSelf: 'flex-start',
+            }}
+          >
             <span>{isCorrect ? 'Correto!' : 'Ops!'}</span>
             {isCorrect && streak >= 2 && (
               <span style={{ display: 'flex', alignItems: 'center', gap: '3px', color: 'var(--color-gold)' }}>
