@@ -1,4 +1,4 @@
-# Tarcisius — Quiz Litúrgico
+# Tarcisius
 
 Quiz gamificado de conhecimentos litúrgicos para coroinhas e acólitos. A
 cada sessão, o app sorteia 10 perguntas de múltipla escolha de um módulo
