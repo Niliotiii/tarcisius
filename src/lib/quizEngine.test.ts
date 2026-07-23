@@ -70,6 +70,23 @@ describe('startSession', () => {
     }
     expect(orders.size).toBeGreaterThan(1)
   })
+
+  it('biases selection toward previously-missed questions', () => {
+    const mod = makeModule(20)
+    const missHistory = { q0: 3, q5: 1 }
+    const session = startSession(mod, 10, missHistory)
+    const ids = session.questions.map((q) => q.id)
+    const missedIndices = ids.map((id, i) => (id in missHistory ? i : -1)).filter((i) => i >= 0)
+    const cleanIndices = ids.map((id, i) => (id in missHistory ? -1 : i)).filter((i) => i >= 0)
+    const maxMissedIndex = Math.max(...missedIndices)
+    const minCleanIndex = Math.min(...cleanIndices)
+    expect(maxMissedIndex).toBeLessThan(minCleanIndex)
+  })
+
+  it('with no miss history, behaves exactly as before (backward compatible)', () => {
+    const session = startSession(makeModule(10), 10)
+    expect(session.questions).toHaveLength(10)
+  })
 })
 
 describe('submitAnswer', () => {

@@ -9,8 +9,16 @@ function shuffle<T>(items: T[]): T[] {
   return result
 }
 
-export function startSession(module: Module, size = 10): QuizSession {
-  const questions: Question[] = shuffle(module.questions)
+export function startSession(
+  module: Module,
+  size = 10,
+  missHistory: Record<string, number> = {},
+): QuizSession {
+  const shuffled = shuffle(module.questions)
+  const weighted = [...shuffled].sort(
+    (a, b) => (missHistory[b.id] ?? 0) - (missHistory[a.id] ?? 0),
+  )
+  const questions: Question[] = weighted
     .slice(0, size)
     .map((question) => ({ ...question, options: shuffle(question.options) }))
   return {
