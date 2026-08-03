@@ -1,10 +1,11 @@
-import { useState, useCallback, useMemo, useEffect, useRef } from 'react'
+import { useState, useCallback, useMemo, useEffect, useRef, type ReactElement } from 'react'
 import type { Module, Question, QuizSession, QuestionImage } from '@/types/quiz'
 import { modules } from '@/data/modules'
 import { startSession, submitAnswer, advance, getScore } from '@/lib/quizEngine'
 import { getRank } from '@/lib/ranking'
 import { saveSession, loadSession, clearSession, recordMiss, clearMiss, loadMissHistory } from '@/lib/storage'
 import { buildShareText, shareResultImage } from '@/lib/share'
+import { InstallPrompt } from '@/components/InstallPrompt'
 
 // ─── Presentation-only module theming (not part of the content data contract) ─
 
@@ -1016,10 +1017,10 @@ export default function App() {
   const accentColor = activeModule ? accentColorFor(activeModule.id) : DEFAULT_ACCENT
   const score = useMemo(() => (session ? getScore(session) : 0), [session])
 
-  if (screen === 'start') return <StartScreen onContinue={() => setScreen('modules')} onAbout={() => setScreen('about')} />
-  if (screen === 'about') return <AboutScreen onBack={() => setScreen('start')} />
-  if (screen === 'modules') return <ModulesScreen onSelect={startQuiz} onBack={() => setScreen('start')} />
-  if (screen === 'result' && session) return (
+  let screenElement: ReactElement
+  if (screen === 'about') screenElement = <AboutScreen onBack={() => setScreen('start')} />
+  else if (screen === 'modules') screenElement = <ModulesScreen onSelect={startQuiz} onBack={() => setScreen('start')} />
+  else if (screen === 'result' && session) screenElement = (
     <ResultScreen
       score={score} total={session.questions.length}
       onRestart={() => activeModule && startQuiz(activeModule)}
@@ -1027,10 +1028,17 @@ export default function App() {
       accentColor={accentColor}
     />
   )
-  if (screen === 'quiz' && session) return (
+  else if (screen === 'quiz' && session) screenElement = (
     <QuizScreen
       session={session} onAnswer={handleAnswer} onNext={handleNext} onExit={exitQuiz} accentColor={accentColor}
     />
   )
-  return <StartScreen onContinue={() => setScreen('modules')} onAbout={() => setScreen('about')} />
+  else screenElement = <StartScreen onContinue={() => setScreen('modules')} onAbout={() => setScreen('about')} />
+
+  return (
+    <>
+      {screenElement}
+      <InstallPrompt />
+    </>
+  )
 }
