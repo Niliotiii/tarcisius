@@ -131,12 +131,25 @@ export function QuizScreen({ navigation, route }: Props) {
         )}
         <Text style={styles.prompt}>{q.prompt}</Text>
 
-        <View style={styles.tilesRow}>
-          {q.options.slice(0, 2).map((opt, i) => renderTile(opt, TILE_STYLES[i], getState(opt.id), answered, handleAnswer))}
-        </View>
-        <View style={styles.tilesRow}>
-          {q.options.slice(2, 4).map((opt, i) => renderTile(opt, TILE_STYLES[i + 2], getState(opt.id), answered, handleAnswer))}
-        </View>
+        {q.options.some((o) => o.image) ? (
+          <>
+            <View style={styles.tilesRow}>
+              {q.options.slice(0, 2).map((opt, i) => renderImageTile(opt, TILE_STYLES[i], getState(opt.id), answered, handleAnswer))}
+            </View>
+            <View style={styles.tilesRow}>
+              {q.options.slice(2, 4).map((opt, i) => renderImageTile(opt, TILE_STYLES[i + 2], getState(opt.id), answered, handleAnswer))}
+            </View>
+          </>
+        ) : (
+          <>
+            <View style={styles.tilesRow}>
+              {q.options.slice(0, 2).map((opt, i) => renderTile(opt, TILE_STYLES[i], getState(opt.id), answered, handleAnswer))}
+            </View>
+            <View style={styles.tilesRow}>
+              {q.options.slice(2, 4).map((opt, i) => renderTile(opt, TILE_STYLES[i + 2], getState(opt.id), answered, handleAnswer))}
+            </View>
+          </>
+        )}
       </ScrollView>
 
       {/* Feedback footer */}
@@ -198,6 +211,48 @@ function renderTile(
   );
 }
 
+function renderImageTile(
+  opt: { id: string; label: string; image?: { src: string; alt: string } },
+  tile: { color: string; mark: GlyphName },
+  state: TileState,
+  answered: boolean,
+  onPress: (id: string) => void,
+) {
+  const isWrong = state === "wrong";
+  const isCorrect = state === "correct";
+  const isDimmed = state === "neutral";
+  return (
+    <Pressable
+      key={opt.id}
+      style={[
+        styles.imageTile,
+        { backgroundColor: isWrong ? "#E4D9BE" : tile.color, opacity: isDimmed ? 0.4 : 1 },
+        isCorrect && styles.tileCorrect,
+      ]}
+      disabled={answered}
+      onPress={() => onPress(opt.id)}
+      accessibilityLabel={opt.label}
+    >
+      {opt.image && (
+        <View style={styles.imageTileImgBox}>
+          <Image source={{ uri: opt.image.src }} style={styles.imageTileImg} resizeMode="cover" accessibilityLabel={opt.image.alt} />
+        </View>
+      )}
+      <View style={styles.imageTileFooter}>
+        <View style={[styles.imageTileIcon, { backgroundColor: isWrong ? "rgba(36,26,69,0.06)" : "rgba(255,255,255,0.24)" }]}>
+          <GlyphIcon name={tile.mark} size={14} color={isWrong ? colors.albaMuted : "#FFFFFF"} />
+        </View>
+        <Text style={[styles.imageTileLabel, isWrong && { color: colors.albaMuted }]} numberOfLines={2}>{opt.label}</Text>
+      </View>
+      {(isCorrect || isWrong) && (
+        <View style={[styles.tileBadge, { backgroundColor: isCorrect ? colors.viridis : colors.rubrum }]}>
+          <GlyphIcon name={isCorrect ? "check" : "x"} size={13} color="#FFFFFF" />
+        </View>
+      )}
+    </Pressable>
+  );
+}
+
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.altar },
   pipsSection: { padding: spacing.xl, paddingBottom: spacing.sm },
@@ -218,6 +273,12 @@ const styles = StyleSheet.create({
   tileImg: { width: "100%", flex: 1, borderRadius: 10 },
   tileLabel: { fontSize: 15, fontWeight: "800", color: "#FFFFFF", lineHeight: 20, marginTop: spacing.sm },
   tileBadge: { position: "absolute", top: 10, right: 10, width: 26, height: 26, borderRadius: 13, alignItems: "center", justifyContent: "center" },
+  imageTile: { flex: 1, borderRadius: radius.xl, overflow: "hidden", position: "relative" },
+  imageTileImgBox: { width: "100%", aspectRatio: 1, backgroundColor: "rgba(0,0,0,0.05)" },
+  imageTileImg: { width: "100%", height: "100%", borderTopLeftRadius: radius.xl, borderTopRightRadius: radius.xl },
+  imageTileFooter: { flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 10, paddingVertical: 10 },
+  imageTileIcon: { width: 28, height: 28, borderRadius: 8, alignItems: "center", justifyContent: "center" },
+  imageTileLabel: { fontSize: 13, fontWeight: "800", color: "#FFFFFF", lineHeight: 18, flex: 1 },
   footer: { padding: spacing.xl, paddingTop: spacing.md, gap: spacing.md, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: "rgba(36,26,69,0.08)" },
   badge: { flexDirection: "row", alignItems: "center", gap: spacing.sm, paddingHorizontal: 14, paddingVertical: spacing.sm, borderRadius: radius.pill, alignSelf: "flex-start" },
   nextBtn: { borderRadius: 14, paddingVertical: 15, alignItems: "center", minHeight: 52 },
