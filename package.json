@@ -24,6 +24,9 @@
     "babel-preset-expo": "^57.0.5",
     "typescript": "~6.0.3"
   },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "start": "expo start --go",
     "web": "expo start --web",
