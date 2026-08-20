@@ -16,62 +16,76 @@ Em honra de São Tarcísio, mártir acólito.
 
 ## Stack
 
-- React 19 + TypeScript
-- Vite 8
-- Tailwind CSS v4
-- Deploy: Cloudflare Workers (assets estáticos), via Wrangler
+- React Native + Expo SDK 57
+- react-native-web (para rodar no browser)
+- React Navigation (native-stack)
+- react-native-svg
+- AsyncStorage
+- TypeScript
 
 ## Rodando localmente
 
 ```bash
 npm install
-npm run dev
+npm run web
 ```
 
-O Vite sobe o servidor de desenvolvimento em `http://localhost:8443`
-(porta configurável via `$PORT`), com hot reload.
+O Expo sobe o servidor de desenvolvimento web.
 
 ## Scripts
 
 | Comando | Descrição |
 |---|---|
-| `npm run dev` | Sobe o servidor de desenvolvimento |
-| `npm run build` | Gera o build de produção em `dist/` |
-| `npm run preview` | Serve o build de produção localmente |
-| `npm run format` | Formata o código com `oxfmt` |
+| `npm run web` | Servidor de dev para web |
+| `npm run start` | Expo Go (mobile) |
+| `npm run ios` | Abre no simulador iOS |
+| `npm run android` | Abre no emulador Android |
+| `npm run build:web` | Gera o build de produção em `dist/` |
 
-## Deploy
-
-O projeto é publicado como um Worker de assets estáticos na Cloudflare
-(config em `wrangler.jsonc`). Deploy manual:
+## Deploy (web)
 
 ```bash
-npm run build
-npx wrangler deploy
+npm run build:web
 ```
 
-Em produção, o deploy é automático a cada push em `main` via Cloudflare
-Workers Builds.
+Os assets estáticos ficam em `dist/` — basta servir com qualquer CDN
+ou hosting estático (Cloudflare Pages, Vercel, Netlify, etc.).
 
 ## Estrutura do projeto
 
 ```text
+App.tsx                 # Entry point (SafeAreaProvider + Navigation)
+index.ts                # registerRootComponent
 src/
-├── App.tsx              # Telas e roteamento (início → módulos → quiz → resultado)
-├── types/quiz.ts         # Contrato de dados (Module, Question, QuizSession, RankTier)
+├── navigation/
+│   └── RootNavigator.tsx   # Stack navigator (Start, About, Modules, Quiz, Result)
+├── screens/
+│   ├── StartScreen.tsx
+│   ├── AboutScreen.tsx
+│   ├── ModulesScreen.tsx
+│   ├── QuizScreen.tsx
+│   └── ResultScreen.tsx
+├── components/
+│   ├── GlyphIcon.tsx
+│   ├── Monstrance.tsx
+│   ├── ScreenHeader.tsx
+│   ├── StarIcon.tsx
+│   └── InstallPrompt.tsx
+├── theme/
+│   └── tokens.ts          # Design tokens (colors, spacing, radius)
+├── types/
+│   └── quiz.ts            # Contrato de dados
 ├── data/
 │   ├── modules.ts         # Registro de módulos
 │   └── questions/         # Bancos de perguntas por módulo
 └── lib/
-    ├── quizEngine.ts       # Sorteio de perguntas, respostas, avanço, pontuação
-    └── ranking.ts           # Faixas de pontuação → título lúdico
+    ├── quizEngine.ts      # Sorteio, respostas, avanço, pontuação
+    ├── ranking.ts         # Faixas de pontuação → título
+    ├── storage.ts         # AsyncStorage wrapper
+    ├── share.ts           # Share API (RN + web)
+    └── pwa.ts             # Service worker + install prompt helpers
 ```
 
-Adicionar um módulo novo não exige alterar `lib/` nem os componentes de
-tela — basta um novo arquivo em `src/data/questions/` e uma entrada em
+Adicionar um módulo novo não exige alterar `lib/` nem os componentes —
+basta um novo arquivo em `src/data/questions/` e uma entrada em
 `src/data/modules.ts`.
-
-## Documentação do desenvolvimento
-
-O histórico de especificação, plano e tarefas desta feature está em
-`specs/001-quiz-objetos-liturgicos/`.

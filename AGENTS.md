@@ -1,22 +1,27 @@
 # tarcisius
 
-React + Vite + Tailwind CSS project (Quiz Litúrgico).
+React Native + Expo + react-native-web project (Quiz Litúrgico).
 
 ## Development Server
 
-Run `npm run dev` (or `pnpm dev`) to start the Vite dev server on `$PORT` (default 8443).
-
-- Hot reload: Changes to source files are reflected immediately
+Run `npm run web` to start the Expo web dev server.
 
 ## Key Files
 
-- `src/App.tsx` - Main application component
-- `src/main.tsx` - React entry point
-- `src/index.css` - Global styles and Tailwind CSS import
-- `package.json` - Dependencies and scripts
-- `vite.config.ts` - Vite configuration
-- `.mise.toml` - Toolchain versions (Node.js, pnpm)
+- `App.tsx` - Root component (SafeAreaProvider + NavigationContainer)
+- `index.ts` - Expo entry point (registerRootComponent)
+- `src/navigation/RootNavigator.tsx` - Stack navigator
+- `src/screens/` - All screen components
+- `src/components/` - Reusable UI components
+- `src/theme/tokens.ts` - Design tokens
+- `src/lib/` - Business logic (quizEngine, ranking, storage, share, pwa)
+- `src/data/` - Modules and question banks
+- `app.json` - Expo configuration
+- `babel.config.js` - Babel preset (babel-preset-expo)
+- `public/` - Static assets served at root (images, manifest, sw.js)
 
 ## Styling
 
-This project uses **Tailwind CSS v4** for styling. Use Tailwind utility classes directly in JSX. Tailwind is loaded via the Vite plugin — no PostCSS config needed.
+This project uses **React Native StyleSheet** for styling. All UI is built
+with React Native primitives (View, Text, Pressable, ScrollView) and
+react-native-svg for icons/graphics. No CSS or Tailwind.

@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "Tarcisius",
+    "slug": "tarcisius",
+    "version": "1.0.0",
+    "sdkVersion": "57.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.danilosaiter.tarcisius"
+    },
+    "android": {
+      "package": "com.danilosaiter.tarcisius",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#F7F1E3"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": ["expo-asset", "expo-font"]
+  }
+}

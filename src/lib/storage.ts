@@ -1,82 +1,82 @@
-import type { QuizSession } from '@/types/quiz'
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import type { QuizSession } from "../types/quiz";
 
-const SESSION_KEY = 'tarcisius:session'
-const HISTORY_KEY = 'tarcisius:history'
-const INSTALL_PROMPT_DISMISSED_KEY = 'tarcisius:install-prompt-dismissed'
+const SESSION_KEY = "tarcisius:session";
+const HISTORY_KEY = "tarcisius:history";
+const INSTALL_PROMPT_DISMISSED_KEY = "tarcisius:install-prompt-dismissed";
 
 export interface StoredSession {
-  moduleId: string
-  session: QuizSession
+  moduleId: string;
+  session: QuizSession;
 }
 
-export function saveSession(moduleId: string, session: QuizSession): void {
+export async function saveSession(moduleId: string, session: QuizSession): Promise<void> {
   try {
-    localStorage.setItem(SESSION_KEY, JSON.stringify({ moduleId, session }))
+    await AsyncStorage.setItem(SESSION_KEY, JSON.stringify({ moduleId, session }));
   } catch {
-    // localStorage unavailable (private browsing, quota exceeded) — the
-    // session simply won't be resumable; not fatal to gameplay.
+    // Storage unavailable — session simply won't be resumable.
   }
 }
 
-export function loadSession(): StoredSession | null {
+export async function loadSession(): Promise<StoredSession | null> {
   try {
-    const raw = localStorage.getItem(SESSION_KEY)
-    return raw ? (JSON.parse(raw) as StoredSession) : null
+    const raw = await AsyncStorage.getItem(SESSION_KEY);
+    return raw ? (JSON.parse(raw) as StoredSession) : null;
   } catch {
-    return null
+    return null;
   }
 }
 
-export function clearSession(): void {
+export async function clearSession(): Promise<void> {
   try {
-    localStorage.removeItem(SESSION_KEY)
-  } catch {
-    // ignore
-  }
-}
-
-export function loadMissHistory(): Record<string, number> {
-  try {
-    const raw = localStorage.getItem(HISTORY_KEY)
-    return raw ? (JSON.parse(raw) as Record<string, number>) : {}
-  } catch {
-    return {}
-  }
-}
-
-function saveMissHistory(history: Record<string, number>): void {
-  try {
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(history))
+    await AsyncStorage.removeItem(SESSION_KEY);
   } catch {
     // ignore
   }
 }
 
-export function recordMiss(questionId: string): void {
-  const history = loadMissHistory()
-  history[questionId] = (history[questionId] ?? 0) + 1
-  saveMissHistory(history)
+export async function loadMissHistory(): Promise<Record<string, number>> {
+  try {
+    const raw = await AsyncStorage.getItem(HISTORY_KEY);
+    return raw ? (JSON.parse(raw) as Record<string, number>) : {};
+  } catch {
+    return {};
+  }
 }
 
-export function clearMiss(questionId: string): void {
-  const history = loadMissHistory()
+async function saveMissHistory(history: Record<string, number>): Promise<void> {
+  try {
+    await AsyncStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+  } catch {
+    // ignore
+  }
+}
+
+export async function recordMiss(questionId: string): Promise<void> {
+  const history = await loadMissHistory();
+  history[questionId] = (history[questionId] ?? 0) + 1;
+  await saveMissHistory(history);
+}
+
+export async function clearMiss(questionId: string): Promise<void> {
+  const history = await loadMissHistory();
   if (questionId in history) {
-    delete history[questionId]
-    saveMissHistory(history)
+    delete history[questionId];
+    await saveMissHistory(history);
   }
 }
 
-export function getInstallPromptDismissed(): boolean {
+export async function getInstallPromptDismissed(): Promise<boolean> {
   try {
-    return localStorage.getItem(INSTALL_PROMPT_DISMISSED_KEY) === '1'
+    return (await AsyncStorage.getItem(INSTALL_PROMPT_DISMISSED_KEY)) === "1";
   } catch {
-    return false
+    return false;
   }
 }
 
-export function setInstallPromptDismissed(): void {
+export async function setInstallPromptDismissed(): Promise<void> {
   try {
-    localStorage.setItem(INSTALL_PROMPT_DISMISSED_KEY, '1')
+    await AsyncStorage.setItem(INSTALL_PROMPT_DISMISSED_KEY, "1");
   } catch {
     // ignore
   }
