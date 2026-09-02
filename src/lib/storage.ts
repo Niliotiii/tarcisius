@@ -3,7 +3,6 @@ import type { QuizSession } from "../types/quiz";
 
 const SESSION_KEY = "tarcisius:session";
 const HISTORY_KEY = "tarcisius:history";
-const INSTALL_PROMPT_DISMISSED_KEY = "tarcisius:install-prompt-dismissed";
 
 export interface StoredSession {
   moduleId: string;
@@ -63,21 +62,5 @@ export async function clearMiss(questionId: string): Promise<void> {
   if (questionId in history) {
     delete history[questionId];
     await saveMissHistory(history);
-  }
-}
-
-export async function getInstallPromptDismissed(): Promise<boolean> {
-  try {
-    return (await AsyncStorage.getItem(INSTALL_PROMPT_DISMISSED_KEY)) === "1";
-  } catch {
-    return false;
-  }
-}
-
-export async function setInstallPromptDismissed(): Promise<void> {
-  try {
-    await AsyncStorage.setItem(INSTALL_PROMPT_DISMISSED_KEY, "1");
-  } catch {
-    // ignore
   }
 }

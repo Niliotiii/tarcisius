@@ -1,7 +1,7 @@
 import React from "react";
-import Svg, { Path, Circle, Rect, Line } from "react-native-svg";
+import Svg, { Path, Circle, Rect } from "react-native-svg";
 
-export type GlyphName = "star" | "dot" | "triangle" | "cross" | "check" | "x" | "lock" | "flame";
+export type GlyphName = "star" | "dot" | "triangle" | "cross" | "check" | "x" | "lock";
 
 interface Props {
   name: GlyphName;
@@ -69,15 +69,6 @@ export function GlyphIcon({ name, size = 16, color = "currentColor" }: Props) {
         <Svg {...common} fill="none">
           <Rect x={5} y={10.5} width={14} height={10} rx={2.2} stroke={color} strokeWidth={2} />
           <Path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" stroke={color} strokeWidth={2} strokeLinecap="round" />
-        </Svg>
-      );
-    case "flame":
-      return (
-        <Svg {...common}>
-          <Path
-            d="M12 2.3c.4 3 2 4.4 3.6 6 1.8 1.8 2.9 3.7 2.9 6.2 0 4.1-3 7.2-6.5 7.2s-6.5-3.1-6.5-7c0-2 .9-3.5 2-4.7.1 1.4.8 2.3 1.7 2.3.9 0 1.4-.8 1.2-1.9-.5-2.6.1-5.6 2.2-8.1-.3 1.3 0 2.3.7 3-.1-1 .1-1.9.7-3z"
-            fill={color}
-          />
         </Svg>
       );
   }

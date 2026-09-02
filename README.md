@@ -69,8 +69,7 @@ src/
 │   ├── GlyphIcon.tsx
 │   ├── Monstrance.tsx
 │   ├── ScreenHeader.tsx
-│   ├── StarIcon.tsx
-│   └── InstallPrompt.tsx
+│   └── StarIcon.tsx
 ├── theme/
 │   └── tokens.ts          # Design tokens (colors, spacing, radius)
 ├── types/
@@ -83,7 +82,7 @@ src/
     ├── ranking.ts         # Faixas de pontuação → título
     ├── storage.ts         # AsyncStorage wrapper
     ├── share.ts           # Share API (RN + web)
-    └── pwa.ts             # Service worker + install prompt helpers
+    └── pwa.ts             # Registro do service worker (PWA)
 ```
 
 Adicionar um módulo novo não exige alterar `lib/` nem os componentes —

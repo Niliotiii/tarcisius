@@ -10,7 +10,6 @@ export const colors = {
   viridis: "#22B87A",
   alba: "#241A45",
   albaMuted: "#6B6089",
-  cyan: "#5EC8E0",
 
   modules: {
     "objetos-liturgicos": "#E8B84B",
@@ -23,16 +22,6 @@ export const colors = {
 export const spacing = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32 };
 
 export const radius = { sm: 8, md: 14, lg: 16, xl: 20, pill: 999 };
-
-export const type = {
-  display: { fontSize: 38, fontWeight: "800" as const },
-  title: { fontSize: 26, fontWeight: "800" as const },
-  body: { fontSize: 15, lineHeight: 22 },
-  small: { fontSize: 13, color: colors.albaMuted },
-  label: { fontSize: 12, fontWeight: "700" as const, letterSpacing: 0.8 },
-};
-
-export const motion = { fast: 150, medium: 250, slow: 350 };
 
 export function accentColorFor(moduleId: string): string {
   return colors.modules[moduleId] ?? colors.gold;
