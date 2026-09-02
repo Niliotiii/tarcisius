@@ -1,4 +1,3 @@
-import React from "react";
 import Svg, { Circle, Line } from "react-native-svg";
 
 interface Props {

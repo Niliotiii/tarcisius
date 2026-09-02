@@ -1,4 +1,3 @@
-import React from "react";
 import Svg, { Path, Circle, Rect } from "react-native-svg";
 
 export type GlyphName = "star" | "dot" | "triangle" | "cross" | "check" | "x" | "lock";

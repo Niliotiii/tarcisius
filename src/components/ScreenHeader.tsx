@@ -1,4 +1,3 @@
-import React from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { colors, spacing } from "../theme/tokens";
 import Svg, { Path } from "react-native-svg";
